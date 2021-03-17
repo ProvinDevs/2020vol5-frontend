@@ -4,6 +4,8 @@ import { useRef, useEffect } from "react";
 import { Scene } from "../lib/editor/Scene";
 import { Background } from "../lib/editor/objects";
 
+import styles from "./Editor.module.scss";
+
 type Props = {
   backgroundImagePath: string;
 };
@@ -29,7 +31,7 @@ const Editor: FC<Props> = ({ backgroundImagePath }) => {
     return () => cancelAnimationFrame(requestId);
   }, [canvasRef, backgroundImagePath]);
 
-  return <canvas ref={canvasRef} />;
+  return <canvas className={styles["editor"]} ref={canvasRef} />;
 };
 
 export default Editor;
