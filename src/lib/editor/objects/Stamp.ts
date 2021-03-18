@@ -20,6 +20,6 @@ export class Stamp implements Drawable {
     const offset = this.size.clone().div(2).negate().toArray();
     ctx.drawImage(this._image, ...offset, ...this.size.toArray());
     ctx.rotate(-this.angle);
-    ctx.translate(...this.position.toArray());
+    ctx.translate(...this.position.clone().negate().toArray());
   }
 }
