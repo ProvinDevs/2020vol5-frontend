@@ -1,4 +1,4 @@
-import { Drawable } from "./objects/Drawable";
+import { Drawable } from "./objects";
 import { assertNonNull } from "../../utils/assert";
 
 export class Scene {
@@ -24,6 +24,7 @@ export class Scene {
   }
 
   draw(): void {
+    this._ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this._children.forEach((obj) => obj.draw(this._ctx));
   }
 }
