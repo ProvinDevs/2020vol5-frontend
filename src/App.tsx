@@ -1,11 +1,14 @@
 import type { FC } from "react";
 
+import Editor from "./components/Editor";
+
+import mockedImage from "./mock/image.jpg";
 import styles from "./App.module.scss";
 
 const App: FC = () => {
   return (
-    <div>
-      <h1 className={styles["helloWorld"]}>Hello, world!</h1>
+    <div className={styles["editor_wrapper"]}>
+      <Editor backgroundImagePath={mockedImage} />
     </div>
   );
 };
