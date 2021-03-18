@@ -5,9 +5,9 @@ export class Stamp implements Drawable {
   private readonly _image: HTMLImageElement;
 
   constructor(
-    private _position: Vector2,
-    private _size: Vector2,
-    private _angle: number,
+    public position: Vector2,
+    public size: Vector2,
+    public angle: number,
     private readonly _imagePath: string,
   ) {
     this._image = new Image();
@@ -15,11 +15,11 @@ export class Stamp implements Drawable {
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
-    ctx.translate(...this._position.toArray());
-    ctx.rotate(this._angle);
-    const offset = this._size.clone().div(2).negate().toArray();
-    ctx.drawImage(this._image, ...offset, ...this._size.toArray());
-    ctx.rotate(-this._angle);
-    ctx.translate(...this._position.toArray());
+    ctx.translate(...this.position.toArray());
+    ctx.rotate(this.angle);
+    const offset = this.size.clone().div(2).negate().toArray();
+    ctx.drawImage(this._image, ...offset, ...this.size.toArray());
+    ctx.rotate(-this.angle);
+    ctx.translate(...this.position.toArray());
   }
 }
