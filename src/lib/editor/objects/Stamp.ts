@@ -1,5 +1,5 @@
 import { Drawable } from "./Drawable";
-import { Vector2 } from "../math/Vector2";
+import { Vector2 } from "../math";
 
 export class Stamp implements Drawable {
   private readonly _image: HTMLImageElement;
