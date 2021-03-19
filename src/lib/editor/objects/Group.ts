@@ -1,16 +1,16 @@
 import { Drawable } from "./Drawable";
 
-export class Group implements Drawable {
-  constructor(protected _children: Array<Drawable> = []) {}
+export class Group<T extends Drawable> implements Drawable {
+  constructor(protected _children: Array<T> = []) {}
 
-  get children(): Array<Drawable> {
+  get children(): Array<T> {
     return this._children;
   }
-  add(obj: Drawable): this {
+  add(obj: T): this {
     this._children.push(obj);
     return this;
   }
-  remove(obj: Drawable): this {
+  remove(obj: T): this {
     this._children = this._children.filter((object) => !Object.is(object, obj));
     return this;
   }

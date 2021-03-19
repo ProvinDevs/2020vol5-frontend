@@ -1,7 +1,7 @@
-import { Group } from "./objects";
+import { Drawable, Group } from "./objects";
 import { assertNonNull } from "../../utils/assert";
 
-export class Scene extends Group {
+export class Scene extends Group<Drawable> {
   private readonly _ctx: CanvasRenderingContext2D;
 
   constructor(public readonly canvas: HTMLCanvasElement) {

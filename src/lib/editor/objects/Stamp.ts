@@ -1,7 +1,7 @@
-import { Drawable } from "./Drawable";
+import { Movable } from "./Movable";
 import { Vector2 } from "../math";
 
-export class Stamp implements Drawable {
+export class Stamp implements Movable {
   private readonly _image: HTMLImageElement;
 
   constructor(
@@ -12,6 +12,10 @@ export class Stamp implements Drawable {
   ) {
     this._image = new Image();
     this._image.src = _imagePath;
+  }
+
+  distanceTo(point: Vector2): number {
+    // TODO: 実装
   }
 
   draw(ctx: CanvasRenderingContext2D): void {

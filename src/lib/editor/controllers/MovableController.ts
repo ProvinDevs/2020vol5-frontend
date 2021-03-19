@@ -1,8 +1,11 @@
-import { Group } from "../objects";
+import { Group, Movable } from "../objects";
 import { Vector2 } from "../math";
 
 export class MovableController {
-  constructor(private canvas: HTMLCanvasElement, private movables: Group) {
+  constructor(
+    private canvas: HTMLCanvasElement,
+    private movables: Group<Movable>,
+  ) {
     canvas.addEventListener("mousedown", this.handleMousedown, false);
     canvas.addEventListener("mousemove", this.handleMousemove, false);
     canvas.addEventListener("mouseup", this.handleMouseup, false);

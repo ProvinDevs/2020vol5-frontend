@@ -2,7 +2,7 @@ import type { FC } from "react";
 import { useRef, useEffect } from "react";
 
 import { Scene } from "../lib/editor/Scene";
-import { Background, Group } from "../lib/editor/objects";
+import { Background, Movable, Group } from "../lib/editor/objects";
 import { MovableController } from "../lib/editor/controllers/MovableController";
 import { StampFactory } from "../lib/editor/factory/StampFactory";
 
@@ -22,7 +22,7 @@ const Editor: FC<Props> = ({ backgroundImagePath }) => {
     const background = new Background(canvas, backgroundImagePath);
     scene.add(background);
     const stampFactory = new StampFactory(canvas);
-    const stampGroup = new Group();
+    const stampGroup = new Group<Movable>();
     scene.add(stampGroup);
     const stampController = new MovableController(canvas, stampGroup);
 
