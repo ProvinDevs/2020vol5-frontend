@@ -6,7 +6,7 @@ export class MovableController {
     canvas.addEventListener("mousemove", this.handleMousemove, false);
     canvas.addEventListener("mouseup", this.handleMouseup, false);
   }
-  deconstructor() {
+  deconstructor(): void {
     this.canvas.removeEventListener("mousedown", this.handleMousedown, false);
     this.canvas.removeEventListener("mousemove", this.handleMousemove, false);
     this.canvas.removeEventListener("mouseup", this.handleMouseup, false);
