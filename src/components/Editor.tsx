@@ -2,7 +2,8 @@ import type { FC } from "react";
 import { useRef, useEffect } from "react";
 
 import { Scene } from "../lib/editor/Scene";
-import { Background } from "../lib/editor/objects";
+import { Background, Group } from "../lib/editor/objects";
+import { MovableController } from "../lib/editor/controllers/MovableController";
 import { StampFactory } from "../lib/editor/factory/StampFactory";
 
 import styles from "./Editor.module.scss";
@@ -21,13 +22,16 @@ const Editor: FC<Props> = ({ backgroundImagePath }) => {
     const background = new Background(canvas, backgroundImagePath);
     scene.add(background);
     const stampFactory = new StampFactory(canvas);
+    const stampGroup = new Group();
+    scene.add(stampGroup);
+    const stampController = new MovableController(canvas, stampGroup);
 
     // StampFactory.prototype.create()は本来Backgroundのロードが完全に終了した後に
     // 非同期的に呼び出されることを想定しているため、ここではsetTimeoutを用いて擬似的にBackground
     // の読み込みが終わった後に非同期的に呼び出しています。
     setTimeout(() => {
       const stampTest = stampFactory.create("innocent");
-      scene.add(stampTest);
+      stampGroup.add(stampTest);
     }, 1000);
 
     // TODO: 追加実装
@@ -38,7 +42,10 @@ const Editor: FC<Props> = ({ backgroundImagePath }) => {
       requestId = requestAnimationFrame(animate);
     };
     animate();
-    return () => cancelAnimationFrame(requestId);
+    return () => {
+      cancelAnimationFrame(requestId);
+      stampController.deconstructor();
+    };
   }, [canvasRef, backgroundImagePath]);
 
   return <canvas className={styles["editor"]} ref={canvasRef} />;
