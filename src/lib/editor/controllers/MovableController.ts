@@ -1,4 +1,5 @@
 import { Group } from "../objects";
+import { Vector2 } from "../math";
 
 export class MovableController {
   constructor(private canvas: HTMLCanvasElement, private movables: Group) {
@@ -10,6 +11,13 @@ export class MovableController {
     this.canvas.removeEventListener("mousedown", this.handleMousedown, false);
     this.canvas.removeEventListener("mousemove", this.handleMousemove, false);
     this.canvas.removeEventListener("mouseup", this.handleMouseup, false);
+  }
+
+  private getClickPoint(event: MouseEvent): Vector2 {
+    const rect = this.canvas.getBoundingClientRect();
+    const x = (event.clientX - rect.left) * (this.canvas.width / rect.width);
+    const y = (event.clientY - rect.top) * (this.canvas.height / rect.height);
+    return new Vector2(x, y);
   }
 
   private handleMousedown(event: MouseEvent): void {
