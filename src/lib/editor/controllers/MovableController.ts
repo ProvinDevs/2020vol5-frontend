@@ -1,7 +1,14 @@
 import { Group, Movable } from "../objects";
 import { Vector2 } from "../math";
 
+type MovingObjectInfo = {
+  object: Movable;
+  offset: Vector2;
+};
+
 export class MovableController {
+  movingObjectInfo?: MovingObjectInfo;
+
   constructor(
     private canvas: HTMLCanvasElement,
     private movables: Group<Movable>,
@@ -21,6 +28,12 @@ export class MovableController {
     const x = (event.clientX - rect.left) * (this.canvas.width / rect.width);
     const y = (event.clientY - rect.top) * (this.canvas.height / rect.height);
     return new Vector2(x, y);
+  }
+
+  private getClickedObjects(position: Vector2): Array<Movable> {
+    return this.movables.children.filter(
+      (obj) => obj.distanceTo(position) === 0,
+    );
   }
 
   private handleMousedown(event: MouseEvent): void {
