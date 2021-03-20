@@ -15,7 +15,21 @@ export class Stamp implements Movable {
   }
 
   distanceTo(point: Vector2): number {
-    // TODO: 実装
+    const relativePos = point.clone().sub(this.position);
+    const rotatedX =
+      relativePos.x * Math.cos(-this.angle) -
+      relativePos.y * Math.sin(-this.angle);
+    const rotatedY =
+      relativePos.x * Math.sin(-this.angle) +
+      relativePos.y * Math.cos(-this.angle);
+    const rotatedPos = new Vector2(rotatedX, rotatedY).add(this.position);
+
+    const offset = this.size.clone().div(2);
+    const rectMin = this.position.clone().sub(offset);
+    const rectMax = this.position.clone().add(offset);
+
+    const clampedPos = rotatedPos.clamp(rectMin, rectMax);
+    return clampedPos.sub(rotatedPos).length();
   }
 
   draw(ctx: CanvasRenderingContext2D): void {

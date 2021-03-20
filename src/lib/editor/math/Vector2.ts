@@ -19,6 +19,16 @@ export class Vector2 {
     return new Vector2(this.x, this.y);
   }
 
+  add(v: Vector2): this {
+    this.x += v.x;
+    this.y += v.y;
+    return this;
+  }
+  sub(v: Vector2): this {
+    this.x -= v.x;
+    this.y -= v.y;
+    return this;
+  }
   mul(s: number): this {
     this.x *= s;
     this.y *= s;
@@ -32,6 +42,19 @@ export class Vector2 {
 
   negate(): this {
     return this.mul(-1);
+  }
+
+  lengthSq(): number {
+    return this.x * this.x + this.y * this.y;
+  }
+  length(): number {
+    return Math.sqrt(this.lengthSq());
+  }
+
+  clamp(min: Vector2, max: Vector2): this {
+    this.x = Math.max(min.x, Math.min(max.x, this.x));
+    this.y = Math.max(min.y, Math.min(max.y, this.y));
+    return this;
   }
 
   static fromArray([x, y]: [number, number]): Vector2 {
