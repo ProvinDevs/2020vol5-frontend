@@ -28,7 +28,7 @@ export class Stamp implements Movable {
     const rectMin = this.position.clone().sub(offset);
     const rectMax = this.position.clone().add(offset);
 
-    const clampedPos = rotatedPos.clamp(rectMin, rectMax);
+    const clampedPos = rotatedPos.clone().clamp(rectMin, rectMax);
     return clampedPos.sub(rotatedPos).length();
   }
 
