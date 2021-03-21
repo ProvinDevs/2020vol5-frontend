@@ -40,10 +40,8 @@ export class MovableController {
   private handleMousedown(event: MouseEvent): void {
     this.isClick = true;
     const clickedPos = this.getClickPoint(event);
-
     if (this.selectedObject !== undefined) {
       this.clickOffset = this.selectedObject.position.clone().sub(clickedPos);
-      return;
     }
 
     const topClickedObj = this.getClickedObjects(clickedPos).slice(-1)[0];
