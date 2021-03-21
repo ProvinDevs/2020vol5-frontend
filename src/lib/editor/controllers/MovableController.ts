@@ -38,6 +38,12 @@ export class MovableController {
     );
   }
 
+  private setSelectedObject(obj: Movable): void {
+    this.movables.remove(obj);
+    this.movables.add(obj);
+    this.selectedObject = obj;
+  }
+
   private handleMousedown(event: MouseEvent): void {
     this.isClick = true;
     const clickedPos = this.getClickPoint(event);
@@ -78,9 +84,7 @@ export class MovableController {
     if (clickedObjects.length === 1) {
       const selectedObject = clickedObjects[0];
       assertNonNull(selectedObject, "selectedObject");
-      this.movables.remove(selectedObject);
-      this.movables.add(selectedObject);
-      this.selectedObject = selectedObject;
+      this.setSelectedObject(selectedObject);
       return;
     }
 
@@ -92,14 +96,10 @@ export class MovableController {
       assertNonNull(this.selectedObject, "this.selectedObject");
       this.movables.remove(this.selectedObject);
       this.movables.children.unshift(this.selectedObject);
-      this.movables.remove(topClickedObjectNoSelect);
-      this.movables.add(topClickedObjectNoSelect);
-      this.selectedObject = topClickedObjectNoSelect;
+      this.setSelectedObject(topClickedObjectNoSelect);
       return;
     }
     assertNonNull(topClickedObject, "topClickedObject");
-    this.movables.remove(topClickedObject);
-    this.movables.add(topClickedObject);
-    this.selectedObject = topClickedObject;
+    this.setSelectedObject(topClickedObject);
   }
 }
