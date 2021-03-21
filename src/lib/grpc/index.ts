@@ -1,1 +1,224 @@
-import {} from "./generated/hello_pb";
+import { createNanoEvents, Emitter } from "nanoevents";
+import { grpc } from "@improbable-eng/grpc-web";
+import { uuid } from "uuidv4";
+import {
+  CreateRoomRequest,
+  IceCandidateMessage,
+  Room as PbRoom,
+  RoomInfoRequest,
+  SdpMessage,
+  SelfIntroduceMessage,
+  SignallingMessage,
+} from "./generated/hello_pb";
+import {
+  Hello,
+  HelloCreateRoom,
+  HelloSignalling,
+} from "./generated/hello_pb_service";
+
+export interface ApiClient {
+  createNewRoom(): Promise<Room>;
+  joinRoom(roomId: string): SignallingStream;
+}
+
+export interface SignallingStream {
+  on(ev: "sdp", func: (s: Sdp) => void): () => void;
+  on(ev: "iceCandidate", func: (i: IceCandidate) => void): () => void;
+
+  getRoomInfo(): Promise<Room>;
+  sendSdpMessage(to: string, sessionDescription: string): Promise<void>;
+  sendIceCandidateMessage(to: string, iceCandidate: string): Promise<void>;
+}
+
+export type Room = {
+  roomId: string;
+  joinedUserIds: Array<string>;
+};
+
+export type Sdp = {
+  sessionDescription: string;
+  fromId: string;
+  toId: string;
+};
+
+export type IceCandidate = {
+  iceCandidate: string;
+  fromId: string;
+  toId: string;
+};
+
+export class GrpcApiClient implements ApiClient {
+  private readonly myId;
+  private isJoinedToRoom: boolean;
+
+  constructor(private readonly url: string) {
+    this.myId = uuid();
+    this.isJoinedToRoom = false;
+  }
+
+  createNewRoom(): Promise<Room> {
+    return new Promise((done) => {
+      grpc.invoke<CreateRoomRequest, PbRoom, HelloCreateRoom>(
+        Hello.CreateRoom,
+        {
+          host: this.url,
+          request: new CreateRoomRequest(),
+
+          onMessage: (response) => {
+            done({
+              roomId: response.getRoomId(),
+              joinedUserIds: response.getJoinedUserIdsList(),
+            });
+          },
+
+          onEnd: (code, msg, meta) => {
+            console.trace(
+              `grpc.invoke to ${this.url} finished with code: ${code}, msg: ${msg}, meta: ${meta}`,
+            );
+          },
+        },
+      );
+    });
+  }
+
+  joinRoom(roomId: string): SignallingStream {
+    const client = grpc.client<
+      SignallingMessage,
+      SignallingMessage,
+      HelloSignalling
+    >(Hello.Signalling, {
+      host: this.url,
+      transport: grpc.WebsocketTransport(),
+    });
+
+    if (this.isJoinedToRoom) {
+      throw new Error(
+        "unimplemented: rejoining to room is currently not supported.",
+      );
+    }
+
+    this.isJoinedToRoom = true;
+
+    return new GrpcSignallingStream(client, this.myId, roomId);
+  }
+}
+
+type EmitterT = {
+  sdp: (s: Sdp) => void;
+  iceCandidate: (i: IceCandidate) => void;
+
+  // internal use
+  roomInfo: (r: PbRoom) => void;
+};
+
+export class GrpcSignallingStream implements SignallingStream {
+  private emitter: Emitter<EmitterT>;
+
+  constructor(
+    private client: grpc.Client<SignallingMessage, SignallingMessage>,
+    private myId: string,
+    roomId: string,
+  ) {
+    this.emitter = createNanoEvents();
+
+    const selfIntro = new SelfIntroduceMessage();
+    selfIntro.setMyId(myId);
+    selfIntro.setRoomId(roomId);
+
+    const req = new SignallingMessage();
+    req.setSelfIntro(selfIntro);
+
+    client.send(req);
+
+    client.onMessage((m) => {
+      this.onClientMessage(m);
+    });
+  }
+
+  private async onClientMessage(msg: SignallingMessage): Promise<void> {
+    /* eslint-disable @typescript-eslint/no-non-null-assertion */
+    if (msg.hasRoomInfoResponse()) {
+      console.trace("got RoomInfoResponse");
+      this.emitter.emit("roomInfo", msg.getRoomInfoResponse()!);
+
+      return;
+    }
+
+    if (msg.hasSdpMessage()) {
+      const origin = msg.getSdpMessage();
+      const converted: Sdp = {
+        sessionDescription: origin!.getSessionDescription(),
+        fromId: origin!.getFromId(),
+        toId: origin!.getToId(),
+      };
+
+      this.emitter.emit("sdp", converted);
+
+      return;
+    }
+
+    if (msg.hasIceMessage()) {
+      const origin = msg.getIceMessage()!;
+      const converted: IceCandidate = {
+        iceCandidate: origin!.getIceCandidate(),
+        fromId: origin!.getFromId(),
+        toId: origin!.getToId(),
+      };
+
+      this.emitter.emit("iceCandidate", converted);
+      return;
+    }
+  }
+
+  on(
+    ev: "sdp" | "iceCandidate",
+    func: ((s: Sdp) => void) | ((i: IceCandidate) => void),
+  ): () => void {
+    return this.emitter.on(ev, func);
+  }
+
+  getRoomInfo(): Promise<Room> {
+    return new Promise((ok) => {
+      const request = new SignallingMessage();
+      request.setRoomInfoRequest(new RoomInfoRequest());
+
+      this.client.send(request);
+
+      console.trace("sent RoomInfoRequest");
+
+      const dispose = this.emitter.on("roomInfo", (room) => {
+        dispose();
+        ok({
+          roomId: room.getRoomId(),
+          joinedUserIds: room.getJoinedUserIdsList(),
+        });
+      });
+    });
+  }
+
+  sendSdpMessage(to: string, sessionDescription: string): Promise<void> {
+    const sdpMsg = new SdpMessage();
+    sdpMsg.setFromId(this.myId);
+    sdpMsg.setSessionDescription(sessionDescription);
+    sdpMsg.setToId(to);
+
+    const req = new SignallingMessage();
+    req.setSdpMessage(sdpMsg);
+
+    this.client.send(req);
+    return Promise.resolve();
+  }
+
+  sendIceCandidateMessage(to: string, iceCandidate: string): Promise<void> {
+    const iceMsg = new IceCandidateMessage();
+    iceMsg.setFromId(this.myId);
+    iceMsg.setIceCandidate(iceCandidate);
+    iceMsg.setToId(to);
+
+    const req = new SignallingMessage();
+    req.setIceMessage(iceMsg);
+
+    this.client.send(req);
+    return Promise.resolve();
+  }
+}
