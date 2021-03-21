@@ -1,7 +1,7 @@
-import { Drawable } from "./Drawable";
+import { Movable } from "./Movable";
 import { Vector2 } from "../math";
 
-export class Stamp implements Drawable {
+export class Stamp implements Movable {
   private readonly _image: HTMLImageElement;
 
   constructor(
@@ -12,6 +12,28 @@ export class Stamp implements Drawable {
   ) {
     this._image = new Image();
     this._image.src = _imagePath;
+  }
+
+  distanceTo(point: Vector2): number {
+    // Stampの中心座標からの相対座標を取得
+    const relativePos = point.clone().sub(this.position);
+    // 中心座標を中心にしてStampのangle分回転した相対座標を取得
+    const rotatedX =
+      relativePos.x * Math.cos(-this.angle) -
+      relativePos.y * Math.sin(-this.angle);
+    const rotatedY =
+      relativePos.x * Math.sin(-this.angle) +
+      relativePos.y * Math.cos(-this.angle);
+    const rotatedPos = new Vector2(rotatedX, rotatedY).add(this.position);
+
+    // Stampの長方形の最小座標と最大座標を取得
+    const offset = this.size.clone().div(2);
+    const rectMin = this.position.clone().sub(offset);
+    const rectMax = this.position.clone().add(offset);
+
+    // Stampから回転済みの座標までの距離を計算
+    const clampedPos = rotatedPos.clone().clamp(rectMin, rectMax);
+    return clampedPos.sub(rotatedPos).length();
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
