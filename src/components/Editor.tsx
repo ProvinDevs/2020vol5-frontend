@@ -26,6 +26,7 @@ const Editor: FC<Props> = ({ backgroundImagePath }) => {
     const stampGroup = new Group<Movable>();
     scene.add(stampGroup);
     const stampController = new MovableController(canvas, stampGroup);
+    scene.add(stampController.selectBox);
 
     // StampFactory.prototype.create()は本来Backgroundのロードが完全に終了した後に
     // 非同期的に呼び出されることを想定しているため、ここではsetTimeoutを用いて擬似的にBackground
