@@ -76,30 +76,29 @@ export class MovableController {
 
     const clickedPos = this.getClickPoint(event);
     const clickedObjects = this.getClickedObjects(clickedPos);
+    const topClickedObject = clickedObjects.slice(-1)[0];
 
-    if (clickedObjects.length === 0) {
+    if (topClickedObject === undefined) {
       this.selectedObject = undefined;
       return;
     }
-    if (clickedObjects.length === 1) {
-      const selectedObject = clickedObjects[0];
-      assertNonNull(selectedObject, "selectedObject");
-      this.setSelectedObject(selectedObject);
+
+    // すでに選択済みのオブジェクトがクリック箇所に存在して、
+    // なおかつクリック箇所に他のオブジェクトが存在した場合、
+    // 2番目に上にあるオブジェクトを選択できるようにする
+    if (Object.is(topClickedObject, this.selectedObject)) {
+      const topClickedObjectWithoutSelected = clickedObjects.slice(-2)[0];
+      if (topClickedObjectWithoutSelected === undefined) return;
+      assertNonNull(this.selectedObject, "this.selectedObject");
+
+      // 選択済みのオブジェクトを一番下にする
+      this.movables.remove(this.selectedObject);
+      this.movables.children.unshift(this.selectedObject);
+
+      this.setSelectedObject(topClickedObjectWithoutSelected);
       return;
     }
 
-    const topClickedObject = clickedObjects.slice(-1)[0];
-    if (Object.is(topClickedObject, this.selectedObject)) {
-      // 一番上にあるオブジェクトは選択済みなので二番目に上にあるオブジェクトを取得する
-      const topClickedObjectNoSelect = clickedObjects.slice(-2)[0];
-      assertNonNull(topClickedObjectNoSelect, "topClickedObjectNoSelect");
-      assertNonNull(this.selectedObject, "this.selectedObject");
-      this.movables.remove(this.selectedObject);
-      this.movables.children.unshift(this.selectedObject);
-      this.setSelectedObject(topClickedObjectNoSelect);
-      return;
-    }
-    assertNonNull(topClickedObject, "topClickedObject");
     this.setSelectedObject(topClickedObject);
   }
 }
