@@ -1,4 +1,4 @@
-import { Group, Movable } from "../objects";
+import { Group, Movable, SelectBox } from "../objects";
 import { Vector2 } from "../math";
 import { assertNonNull } from "../../../utils/assert";
 
@@ -6,6 +6,7 @@ export class MovableController {
   selectedObject?: Movable;
   clickOffset?: Vector2;
   isClick = false;
+  selectBox = new SelectBox();
 
   constructor(
     private canvas: HTMLCanvasElement,
@@ -14,7 +15,6 @@ export class MovableController {
     this.handleMousedown = this.handleMousedown.bind(this);
     this.handleMousemove = this.handleMousemove.bind(this);
     this.handleMouseup = this.handleMouseup.bind(this);
-
     canvas.addEventListener("mousedown", this.handleMousedown, false);
     canvas.addEventListener("mousemove", this.handleMousemove, false);
     canvas.addEventListener("mouseup", this.handleMouseup, false);
@@ -42,6 +42,11 @@ export class MovableController {
     this.movables.remove(obj);
     this.movables.add(obj);
     this.selectedObject = obj;
+    this.selectBox.selectedObject = obj;
+  }
+  private unsetSelectedObject(): void {
+    this.selectedObject = undefined;
+    this.selectBox.selectedObject = undefined;
   }
 
   private handleMousedown(event: MouseEvent): void {
@@ -54,9 +59,7 @@ export class MovableController {
     const topClickedObj = this.getClickedObjects(clickedPos).slice(-1)[0];
     if (topClickedObj === undefined) return;
 
-    this.movables.remove(topClickedObj);
-    this.movables.add(topClickedObj);
-    this.selectedObject = topClickedObj;
+    this.setSelectedObject(topClickedObj);
     this.clickOffset = topClickedObj.position.clone().sub(clickedPos);
   }
 
@@ -79,7 +82,7 @@ export class MovableController {
     const topClickedObject = clickedObjects.slice(-1)[0];
 
     if (topClickedObject === undefined) {
-      this.selectedObject = undefined;
+      this.unsetSelectedObject();
       return;
     }
 
