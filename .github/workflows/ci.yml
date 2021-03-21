@@ -16,13 +16,19 @@ jobs:
       - uses: pnpm/action-setup@v1.2.1
         with:
           version: 5.18.1
+      - name: Set up protoc
+        run: |
+          curl -LO "https://github.com/protocolbuffers/protobuf/releases/download/v3.15.5/protoc-3.15.5-linux-x86_64.zip"
+          unzip protoc-3.15.5-linux-x86_64.zip -d $HOME/.local
       - uses: actions/cache@v2
         with:
           path: ~/.pnpm-store
           key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: ${{ runner.os }}-
-      - run: pnpm install
-
+      - name: Install package dependencies
+        run: |
+          export PATH="$PATH:$HOME/.local/bin"
+          pnpm install
       - name: Run check
         run: pnpm check
 
@@ -36,13 +42,19 @@ jobs:
       - uses: pnpm/action-setup@v1.2.1
         with:
           version: 5.18.1
+      - name: Set up protoc
+        run: |
+          curl -LO "https://github.com/protocolbuffers/protobuf/releases/download/v3.15.5/protoc-3.15.5-linux-x86_64.zip"
+          unzip protoc-3.15.5-linux-x86_64.zip -d $HOME/.local
       - uses: actions/cache@v2
         with:
           path: ~/.pnpm-store
           key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: ${{ runner.os }}-
-      - run: pnpm install
-
+      - name: Install package dependencies
+        run: |
+          export PATH="$PATH:$HOME/.local/bin"
+          pnpm install
       - name: Run build
         run: pnpm build
 
