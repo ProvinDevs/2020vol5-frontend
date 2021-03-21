@@ -1,5 +1,6 @@
 import { Group, Movable } from "../objects";
 import { Vector2 } from "../math";
+import { assertNonNull } from "../../../utils/assert";
 
 export class MovableController {
   selectedObject?: Movable;
@@ -68,15 +69,37 @@ export class MovableController {
     if (!this.isClick) return;
 
     const clickedPos = this.getClickPoint(event);
-    const topClickedObjWithoutSelected = this.getClickedObjects(clickedPos)
-      .filter((obj) => !Object.is(obj, this.selectedObject))
-      .slice(-1)[0];
-    if (topClickedObjWithoutSelected === undefined) {
+    const clickedObjects = this.getClickedObjects(clickedPos);
+
+    if (clickedObjects.length === 0) {
       this.selectedObject = undefined;
       return;
     }
-    this.movables.remove(topClickedObjWithoutSelected);
-    this.movables.add(topClickedObjWithoutSelected);
-    this.selectedObject = topClickedObjWithoutSelected;
+    if (clickedObjects.length === 1) {
+      const selectedObject = clickedObjects[0];
+      assertNonNull(selectedObject, "selectedObject");
+      this.movables.remove(selectedObject);
+      this.movables.add(selectedObject);
+      this.selectedObject = selectedObject;
+      return;
+    }
+
+    const topClickedObject = clickedObjects.slice(-1)[0];
+    if (Object.is(topClickedObject, this.selectedObject)) {
+      // 一番上にあるオブジェクトは選択済みなので二番目に上にあるオブジェクトを取得する
+      const topClickedObjectNoSelect = clickedObjects.slice(-2)[0];
+      assertNonNull(topClickedObjectNoSelect, "topClickedObjectNoSelect");
+      assertNonNull(this.selectedObject, "this.selectedObject");
+      this.movables.remove(this.selectedObject);
+      this.movables.children.unshift(this.selectedObject);
+      this.movables.remove(topClickedObjectNoSelect);
+      this.movables.add(topClickedObjectNoSelect);
+      this.selectedObject = topClickedObjectNoSelect;
+      return;
+    }
+    assertNonNull(topClickedObject, "topClickedObject");
+    this.movables.remove(topClickedObject);
+    this.movables.add(topClickedObject);
+    this.selectedObject = topClickedObject;
   }
 }
