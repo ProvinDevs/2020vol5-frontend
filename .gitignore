@@ -2,5 +2,5 @@ node_modules/
 
 dist/
 
-/src/lib/grpc/*.ts
-/src/lib/grpc/*.js
+/src/lib/grpc/generated/*.ts
+/src/lib/grpc/generated/*.js

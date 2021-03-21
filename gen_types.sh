@@ -4,7 +4,7 @@ set -exu
 
 PROTOC_GEN_TS_PATH="./node_modules/.bin/protoc-gen-ts"
 
-OUT_DIR="./src/lib/grpc/"
+OUT_DIR="./src/lib/grpc/generated"
 
 protoc \
     --plugin="protoc-gen-ts=${PROTOC_GEN_TS_PATH}" \
