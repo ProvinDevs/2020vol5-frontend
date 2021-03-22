@@ -6,7 +6,7 @@ export class MovableController {
   selectedObject?: Movable;
   clickOffset?: Vector2;
   isClick = false;
-  selectBox = new SelectBox();
+  selectBox = new SelectBox(20);
 
   constructor(
     private canvas: HTMLCanvasElement,

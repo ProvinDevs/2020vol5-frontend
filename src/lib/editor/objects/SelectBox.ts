@@ -3,19 +3,25 @@ import { Movable } from "./Movable";
 import { Vector2 } from "../math";
 
 export class SelectBox implements Drawable {
-  constructor(public selectedObject?: Movable) {}
+  constructor(private handleSize: number, public selectedObject?: Movable) {}
 
-  draw(ctx: CanvasRenderingContext2D): void {
-    if (this.selectedObject === undefined) return;
-    ctx.translate(...this.selectedObject.position.toArray());
-    ctx.rotate(this.selectedObject.angle);
-    const [x, y] = this.selectedObject.size.clone().div(2).toArray();
-    const vertex: [Vector2, Vector2, Vector2, Vector2] = [
+  private static getHandlePositions(
+    object: Movable,
+  ): [Vector2, Vector2, Vector2, Vector2] {
+    const [x, y] = object.size.clone().div(2).toArray();
+    return [
       new Vector2(-x, -y),
       new Vector2(x, -y),
       new Vector2(x, y),
       new Vector2(-x, y),
     ];
+  }
+
+  draw(ctx: CanvasRenderingContext2D): void {
+    if (this.selectedObject === undefined) return;
+    const vertex = SelectBox.getHandlePositions(this.selectedObject);
+    ctx.translate(...this.selectedObject.position.toArray());
+    ctx.rotate(this.selectedObject.angle);
 
     // 枠の描画
     ctx.beginPath();
@@ -29,7 +35,7 @@ export class SelectBox implements Drawable {
       ctx.beginPath();
       ctx.lineWidth = 3;
       ctx.strokeStyle = "black";
-      ctx.arc(...point.toArray(), 20, 0, 2 * Math.PI);
+      ctx.arc(...point.toArray(), this.handleSize, 0, 2 * Math.PI);
       ctx.fillStyle = "white";
       ctx.fill();
       ctx.stroke();
