@@ -57,6 +57,15 @@ export class Vector2 {
     return this;
   }
 
+  rotate(angle: number): this {
+    this.x = this.x * Math.cos(angle) - this.y * Math.sin(angle);
+    this.y = this.x * Math.sin(angle) + this.y * Math.cos(angle);
+    return this;
+  }
+  rotateAround(angle: number, center: Vector2): this {
+    return this.sub(center).rotate(angle).add(center);
+  }
+
   static fromArray([x, y]: [number, number]): Vector2 {
     return new Vector2(x, y);
   }
