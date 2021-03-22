@@ -6,6 +6,7 @@ import { assertNonNull } from "../../../utils/assert";
 export class MovableController {
   selectedObject?: Movable;
   clickOffset?: Vector2;
+  angleOffset?: number;
   isClick = false;
   selectBox = new SelectBox(20);
 
@@ -54,11 +55,18 @@ export class MovableController {
     this.isClick = true;
     const clickedPos = this.getClickPoint(event);
 
+    if (
+      this.selectedObject !== undefined &&
+      this.selectBox.isOnHandle(clickedPos)
+    ) {
+      const handleAngle = clickedPos
+        .clone()
+        .sub(this.selectedObject.position)
+        .angle();
+      this.angleOffset = this.selectedObject.angle - handleAngle;
+      return;
+    }
     if (this.selectedObject !== undefined) {
-      if (this.selectBox.isOnHandle(clickedPos)) {
-        // TODO: 実装
-        return;
-      }
       this.clickOffset = this.selectedObject.position.clone().sub(clickedPos);
     }
 
@@ -71,16 +79,28 @@ export class MovableController {
 
   private handleMousemove(event: MouseEvent): void {
     this.isClick = false;
-    if (this.selectedObject === undefined || this.clickOffset === undefined) {
+    if (this.selectedObject === undefined) return;
+
+    const clickedPos = this.getClickPoint(event);
+
+    if (this.angleOffset !== undefined) {
+      const handleAngle = clickedPos
+        .clone()
+        .sub(this.selectedObject.position)
+        .angle();
+      this.selectedObject.angle = handleAngle + this.angleOffset;
       return;
     }
 
-    const clickedPos = this.getClickPoint(event);
-    this.selectedObject.position = clickedPos.clone().add(this.clickOffset);
+    if (this.clickOffset !== undefined) {
+      this.selectedObject.position = clickedPos.clone().add(this.clickOffset);
+      return;
+    }
   }
 
   private handleMouseup(event: MouseEvent): void {
     this.clickOffset = undefined;
+    this.angleOffset = undefined;
     if (!this.isClick) return;
 
     const clickedPos = this.getClickPoint(event);

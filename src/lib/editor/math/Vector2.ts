@@ -61,6 +61,10 @@ export class Vector2 {
     return this.clone().sub(point).length();
   }
 
+  angle(): number {
+    return Math.atan2(this.y, this.x) + Math.PI;
+  }
+
   rotate(angle: number): this {
     this.x = this.x * Math.cos(angle) - this.y * Math.sin(angle);
     this.y = this.x * Math.sin(angle) + this.y * Math.cos(angle);

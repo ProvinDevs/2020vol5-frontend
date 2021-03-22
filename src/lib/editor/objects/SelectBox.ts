@@ -24,8 +24,8 @@ export class SelectBox implements Drawable {
 
   isOnHandle(position: Vector2): boolean {
     if (this.selectedObject === undefined) return false;
-    return SelectBox.getHandlePositions(this.selectedObject).some((point) =>
-      point.distanceTo(position),
+    return SelectBox.getHandlePositions(this.selectedObject).some(
+      (point) => point.distanceTo(position) < this.handleSize,
     );
   }
 
