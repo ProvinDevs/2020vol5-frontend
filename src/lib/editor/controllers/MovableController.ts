@@ -2,6 +2,7 @@ import { Group, Movable, SelectBox } from "../objects";
 import { Vector2 } from "../math";
 import { assertNonNull } from "../../../utils/assert";
 
+// †神クラス†
 export class MovableController {
   selectedObject?: Movable;
   clickOffset?: Vector2;
