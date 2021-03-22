@@ -22,6 +22,13 @@ export class SelectBox implements Drawable {
     ];
   }
 
+  isOnHandle(position: Vector2): boolean {
+    if (this.selectedObject === undefined) return false;
+    return SelectBox.getHandlePositions(this.selectedObject).some((point) =>
+      point.distanceTo(position),
+    );
+  }
+
   draw(ctx: CanvasRenderingContext2D): void {
     if (this.selectedObject === undefined) return;
     const vertex = SelectBox.getHandlePositions(this.selectedObject);

@@ -53,7 +53,12 @@ export class MovableController {
   private handleMousedown(event: MouseEvent): void {
     this.isClick = true;
     const clickedPos = this.getClickPoint(event);
+
     if (this.selectedObject !== undefined) {
+      if (this.selectBox.isOnHandle(clickedPos)) {
+        // TODO: 実装
+        return;
+      }
       this.clickOffset = this.selectedObject.position.clone().sub(clickedPos);
     }
 

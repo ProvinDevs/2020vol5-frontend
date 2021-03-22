@@ -57,6 +57,10 @@ export class Vector2 {
     return this;
   }
 
+  distanceTo(point: Vector2): number {
+    return this.clone().sub(point).length();
+  }
+
   rotate(angle: number): this {
     this.x = this.x * Math.cos(angle) - this.y * Math.sin(angle);
     this.y = this.x * Math.sin(angle) + this.y * Math.cos(angle);
