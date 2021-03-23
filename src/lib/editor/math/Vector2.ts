@@ -57,6 +57,25 @@ export class Vector2 {
     return this;
   }
 
+  distanceTo(point: Vector2): number {
+    return this.clone().sub(point).length();
+  }
+
+  angle(): number {
+    return Math.atan2(this.y, this.x) + Math.PI;
+  }
+
+  rotate(angle: number): this {
+    const x = this.x * Math.cos(angle) - this.y * Math.sin(angle);
+    const y = this.x * Math.sin(angle) + this.y * Math.cos(angle);
+    this.x = x;
+    this.y = y;
+    return this;
+  }
+  rotateAround(angle: number, center: Vector2): this {
+    return this.sub(center).rotate(angle).add(center);
+  }
+
   static fromArray([x, y]: [number, number]): Vector2 {
     return new Vector2(x, y);
   }
