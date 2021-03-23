@@ -30,6 +30,7 @@ export interface SignallingStream {
   getRoomInfo(): Promise<Room>;
   sendSdpMessage(to: string, sessionDescription: string): Promise<void>;
   sendIceCandidateMessage(to: string, iceCandidate: string): Promise<void>;
+  close(): Promise<void>;
 }
 
 export type Room = {
@@ -224,6 +225,11 @@ export class GrpcSignallingStream implements SignallingStream {
     req.setIceMessage(iceMsg);
 
     this.client.send(req);
+    return Promise.resolve();
+  }
+
+  close(): Promise<void> {
+    this.client.close();
     return Promise.resolve();
   }
 }

@@ -85,6 +85,12 @@ const StreamController: FC<ClientOnlyProps> = ({ client }) => {
     setStream(stream);
   };
 
+  useEffect(() => () => {
+    if (stream != null) {
+      stream.close();
+    }
+  });
+
   return (
     <div>
       <h2>StreamController</h2>
