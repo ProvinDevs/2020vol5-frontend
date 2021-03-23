@@ -79,6 +79,11 @@ export class Vector2 {
   static fromArray([x, y]: [number, number]): Vector2 {
     return new Vector2(x, y);
   }
+  fromArray([x, y]: [number, number]): this {
+    this.x = x;
+    this.y = y;
+    return this;
+  }
   toArray(): [number, number] {
     return [this.x, this.y];
   }
