@@ -89,6 +89,18 @@ export class MovableController {
         .sub(this.selectedObject.position)
         .angle();
       this.selectedObject.angle = handleAngle + this.angleOffset;
+
+      const sizeArray = clickedPos
+        .clone()
+        .sub(this.selectedObject.position)
+        .rotate(-this.selectedObject.angle)
+        .mul(2)
+        .toArray()
+        .map((size) => Math.abs(size));
+      const size = Math.min(...sizeArray);
+      this.selectedObject.size.x = Math.abs(size);
+      this.selectedObject.size.y = Math.abs(size);
+
       return;
     }
 
