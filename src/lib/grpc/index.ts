@@ -3,12 +3,13 @@ import { grpc } from "@improbable-eng/grpc-web";
 import { uuid } from "uuidv4";
 import {
   CreateRoomRequest,
-  IceCandidateMessage,
+  RecvSignallingMessage,
   Room as PbRoom,
   RoomInfoRequest,
-  SdpMessage,
   SelfIntroduceMessage,
-  SignallingMessage,
+  SendIceCandidateMessage,
+  SendSdpMessage,
+  SendSignallingMessage,
 } from "./generated/hello_pb";
 import {
   Hello,
@@ -18,7 +19,7 @@ import {
 
 export interface ApiClient {
   createNewRoom(): Promise<Room>;
-  joinRoom(roomId: string): SignallingStream;
+  joinRoom(roomId: number): SignallingStream;
 }
 
 export interface SignallingStream {
@@ -31,7 +32,7 @@ export interface SignallingStream {
 }
 
 export type Room = {
-  roomId: string;
+  roomId: number;
   joinedUserIds: Array<string>;
 };
 
@@ -81,10 +82,10 @@ export class GrpcApiClient implements ApiClient {
     });
   }
 
-  joinRoom(roomId: string): SignallingStream {
+  joinRoom(roomId: number): SignallingStream {
     const client = grpc.client<
-      SignallingMessage,
-      SignallingMessage,
+      SendSignallingMessage,
+      RecvSignallingMessage,
       HelloSignalling
     >(Hello.Signalling, {
       host: this.url,
@@ -115,9 +116,9 @@ export class GrpcSignallingStream implements SignallingStream {
   private emitter: Emitter<EmitterT>;
 
   constructor(
-    private client: grpc.Client<SignallingMessage, SignallingMessage>,
-    private myId: string,
-    roomId: string,
+    private client: grpc.Client<SendSignallingMessage, RecvSignallingMessage>,
+    myId: string,
+    roomId: number,
   ) {
     this.emitter = createNanoEvents();
 
@@ -125,7 +126,7 @@ export class GrpcSignallingStream implements SignallingStream {
     selfIntro.setMyId(myId);
     selfIntro.setRoomId(roomId);
 
-    const req = new SignallingMessage();
+    const req = new SendSignallingMessage();
     req.setSelfIntro(selfIntro);
 
     client.send(req);
@@ -135,7 +136,7 @@ export class GrpcSignallingStream implements SignallingStream {
     });
   }
 
-  private async onClientMessage(msg: SignallingMessage): Promise<void> {
+  private async onClientMessage(msg: RecvSignallingMessage): Promise<void> {
     /* eslint-disable @typescript-eslint/no-non-null-assertion */
     if (msg.hasRoomInfoResponse()) {
       console.trace("got RoomInfoResponse");
@@ -179,7 +180,7 @@ export class GrpcSignallingStream implements SignallingStream {
 
   getRoomInfo(): Promise<Room> {
     return new Promise((ok) => {
-      const request = new SignallingMessage();
+      const request = new SendSignallingMessage();
       request.setRoomInfoRequest(new RoomInfoRequest());
 
       this.client.send(request);
@@ -197,12 +198,11 @@ export class GrpcSignallingStream implements SignallingStream {
   }
 
   sendSdpMessage(to: string, sessionDescription: string): Promise<void> {
-    const sdpMsg = new SdpMessage();
-    sdpMsg.setFromId(this.myId);
+    const sdpMsg = new SendSdpMessage();
     sdpMsg.setSessionDescription(sessionDescription);
     sdpMsg.setToId(to);
 
-    const req = new SignallingMessage();
+    const req = new SendSignallingMessage();
     req.setSdpMessage(sdpMsg);
 
     this.client.send(req);
@@ -210,12 +210,11 @@ export class GrpcSignallingStream implements SignallingStream {
   }
 
   sendIceCandidateMessage(to: string, iceCandidate: string): Promise<void> {
-    const iceMsg = new IceCandidateMessage();
-    iceMsg.setFromId(this.myId);
+    const iceMsg = new SendIceCandidateMessage();
     iceMsg.setIceCandidate(iceCandidate);
     iceMsg.setToId(to);
 
-    const req = new SignallingMessage();
+    const req = new SendSignallingMessage();
     req.setIceMessage(iceMsg);
 
     this.client.send(req);
