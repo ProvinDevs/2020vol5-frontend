@@ -14,7 +14,7 @@ export class SelectBox implements Drawable {
       new Vector2(x, -y),
       new Vector2(x, y),
       new Vector2(-x, y),
-    ].map((p) => p.rotate(-object.angle).add(object.position)) as [
+    ].map((p) => p.rotate(object.angle).add(object.position)) as [
       Vector2,
       Vector2,
       Vector2,

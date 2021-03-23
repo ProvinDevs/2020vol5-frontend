@@ -66,8 +66,10 @@ export class Vector2 {
   }
 
   rotate(angle: number): this {
-    this.x = this.x * Math.cos(angle) - this.y * Math.sin(angle);
-    this.y = this.x * Math.sin(angle) + this.y * Math.cos(angle);
+    const x = this.x * Math.cos(angle) - this.y * Math.sin(angle);
+    const y = this.x * Math.sin(angle) + this.y * Math.cos(angle);
+    this.x = x;
+    this.y = y;
     return this;
   }
   rotateAround(angle: number, center: Vector2): this {
