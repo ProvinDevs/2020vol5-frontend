@@ -1,5 +1,6 @@
 import { Movable } from "./Movable";
 import { Vector2 } from "../math";
+import { nanoid } from "nanoid";
 
 export class Stamp implements Movable {
   private readonly _image: HTMLImageElement;
@@ -9,6 +10,7 @@ export class Stamp implements Movable {
     public size: Vector2,
     public angle: number,
     private readonly _imagePath: string,
+    public readonly id: string = nanoid(),
   ) {
     this._image = new Image();
     this._image.src = _imagePath;
