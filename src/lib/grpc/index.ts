@@ -1,6 +1,6 @@
 import { createNanoEvents, Emitter } from "nanoevents";
 import { grpc } from "@improbable-eng/grpc-web";
-import { uuid } from "uuidv4";
+import { nanoid } from "nanoid";
 import {
   CreateRoomRequest,
   RecvSignallingMessage,
@@ -19,13 +19,14 @@ import {
 
 export interface ApiClient {
   createNewRoom(): Promise<Room>;
-  joinRoom(roomId: number): SignallingStream;
+  joinRoom(roomId: number): Promise<SignallingStream>;
 }
 
 export interface SignallingStream {
   on(ev: "sdp", func: (s: Sdp) => void): () => void;
   on(ev: "iceCandidate", func: (i: IceCandidate) => void): () => void;
 
+  getMyId(): string;
   getRoomInfo(): Promise<Room>;
   sendSdpMessage(to: string, sessionDescription: string): Promise<void>;
   sendIceCandidateMessage(to: string, iceCandidate: string): Promise<void>;
@@ -53,7 +54,7 @@ export class GrpcApiClient implements ApiClient {
   private isJoinedToRoom: boolean;
 
   constructor(private readonly url: string) {
-    this.myId = uuid();
+    this.myId = nanoid();
     this.isJoinedToRoom = false;
   }
 
@@ -82,7 +83,7 @@ export class GrpcApiClient implements ApiClient {
     });
   }
 
-  joinRoom(roomId: number): SignallingStream {
+  async joinRoom(roomId: number): Promise<SignallingStream> {
     const client = grpc.client<
       SendSignallingMessage,
       RecvSignallingMessage,
@@ -117,10 +118,12 @@ export class GrpcSignallingStream implements SignallingStream {
 
   constructor(
     private client: grpc.Client<SendSignallingMessage, RecvSignallingMessage>,
-    myId: string,
+    private readonly myId: string,
     roomId: number,
   ) {
     this.emitter = createNanoEvents();
+
+    client.start();
 
     const selfIntro = new SelfIntroduceMessage();
     selfIntro.setMyId(myId);
@@ -134,6 +137,10 @@ export class GrpcSignallingStream implements SignallingStream {
     client.onMessage((m) => {
       this.onClientMessage(m);
     });
+  }
+
+  getMyId(): string {
+    return this.myId;
   }
 
   private async onClientMessage(msg: RecvSignallingMessage): Promise<void> {
@@ -154,7 +161,6 @@ export class GrpcSignallingStream implements SignallingStream {
       };
 
       this.emitter.emit("sdp", converted);
-
       return;
     }
 
