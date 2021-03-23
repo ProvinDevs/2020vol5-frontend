@@ -6,9 +6,18 @@ import mockedImage from "./mock/image.jpg";
 import styles from "./App.module.scss";
 import { ApiClient, GrpcApiClient, Room, SignallingStream } from "./lib/grpc";
 
-const apiEndpoint = "https://lc.kawaemon.dev:3000";
-
 const App: FC = () => {
+  return (
+    <div className={styles["editor_wrapper"]}>
+      <Editor backgroundImagePath={mockedImage} />
+    </div>
+  );
+};
+
+const apiEndpoint = "https://lc.kawaemon.dev:4000";
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
+const GrpcExample: FC = () => {
   const [client, setClient] = useState<ApiClient | null>(null);
 
   useEffect(() => {
@@ -76,14 +85,6 @@ const StreamController: FC<ClientOnlyProps> = ({ client }) => {
     setStream(stream);
   };
 
-  const onSdpButtonClick = async () => {
-    await stream!.sendSdpMessage(sdpInput[0], sdpInput[1]);
-  };
-
-  const onIceButtonClick = async () => {
-    await stream!.sendIceCandidateMessage(iceInput[0], iceInput[1]);
-  };
-
   return (
     <div>
       <h2>StreamController</h2>
@@ -114,7 +115,11 @@ const StreamController: FC<ClientOnlyProps> = ({ client }) => {
               value={sdpInput[0]}
               onChange={(e) => setSdpInput([e.target.value, sdpInput[1]])}
             />
-            <button onClick={onSdpButtonClick}>send</button>
+            <button
+              onClick={() => stream.sendSdpMessage(sdpInput[0], sdpInput[1])}
+            >
+              send
+            </button>
           </div>
           <div>
             <input
@@ -127,7 +132,13 @@ const StreamController: FC<ClientOnlyProps> = ({ client }) => {
               value={iceInput[0]}
               onChange={(e) => setIceInput([e.target.value, iceInput[1]])}
             />
-            <button onClick={onIceButtonClick}>send</button>
+            <button
+              onClick={() =>
+                stream.sendIceCandidateMessage(iceInput[0], iceInput[1])
+              }
+            >
+              send
+            </button>
           </div>
         </>
       )}
