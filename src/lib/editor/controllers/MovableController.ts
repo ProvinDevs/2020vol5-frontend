@@ -1,9 +1,16 @@
 import { Group, Movable, SelectBox } from "../objects";
 import { Vector2 } from "../math";
 import { assertNonNull } from "../../../utils/assert";
+import { Emitter } from "../../../utils/emitter";
+
+type EventMap = {
+  add: (event: unknown) => void;
+  change: (event: unknown) => void;
+  remove: (event: unknown) => void;
+};
 
 // †神クラス†
-export class MovableController {
+export class MovableController extends Emitter<EventMap> {
   selectedObject?: Movable;
   clickOffset?: Vector2;
   angleOffset?: number;
@@ -14,6 +21,7 @@ export class MovableController {
     private canvas: HTMLCanvasElement,
     private movables: Group<Movable>,
   ) {
+    super();
     this.handleMousedown = this.handleMousedown.bind(this);
     this.handleMousemove = this.handleMousemove.bind(this);
     this.handleMouseup = this.handleMouseup.bind(this);
