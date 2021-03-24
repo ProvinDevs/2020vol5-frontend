@@ -20,6 +20,15 @@ export class Circle implements Drawable {
     }
   }
 
+  contains(point: Vector2): boolean {
+    const sq = (x: number) => x * x;
+
+    return (
+      sq(this.radius) >=
+      sq(point.x - this.center.x) + sq(point.y - this.center.y)
+    );
+  }
+
   draw(ctx: CanvasRenderingContext2D): void {
     ctx.beginPath();
 
