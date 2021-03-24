@@ -16,16 +16,19 @@
     "format:check": "prettier --check --ignore-path .gitignore \"**/*.{js,ts,jsx,tsx,css,sass,scss}\"",
     "fix": "run-s lint format",
     "check": "run-p *:check",
-    "postinstall": "husky install"
+    "postinstall": "husky install && ./gen_types.sh"
   },
   "lint-staged": {
     "*.{ts,tsx}": "eslint --fix",
     "*.{js,ts,jsx,tsx,css,sass,scss}": "prettier --write"
   },
   "dependencies": {
+    "@improbable-eng/grpc-web": "^0.14.0",
     "@tensorflow-models/body-pix": "^2.1.0",
     "@tensorflow/tfjs": "^3.3.0",
     "core-js": "^3.9.1",
+    "google-protobuf": "^3.15.6",
+    "nanoevents": "^5.1.13",
     "nanoid": "^3.1.22",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -69,6 +72,7 @@
     "sass-loader": "^11.0.1",
     "ts-loader": "^8.0.18",
     "ts-node": "^9.1.1",
+    "ts-protoc-gen": "^0.14.0",
     "typescript": "^4.2.3",
     "webpack": "^5.26.0",
     "webpack-cli": "^4.5.0",
