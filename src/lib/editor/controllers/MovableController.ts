@@ -25,8 +25,6 @@ export class MovableController extends Emitter<EventMap> {
     this.handleMousedown = this.handleMousedown.bind(this);
     this.handleMousemove = this.handleMousemove.bind(this);
     this.handleMouseup = this.handleMouseup.bind(this);
-    this.movables.on("add", (obj) => this.emit("add", obj));
-    this.movables.on("remove", (obj) => this.emit("remove", obj));
     canvas.addEventListener("mousedown", this.handleMousedown, false);
     canvas.addEventListener("mousemove", this.handleMousemove, false);
     canvas.addEventListener("mouseup", this.handleMouseup, false);
