@@ -2,14 +2,26 @@ import { Stamp } from "../objects";
 import { Vector2 } from "../math";
 import { assertNonNull } from "../../../utils/assert";
 
+import joyPath from "../../../assets/stamps/joy.svg";
+import roflPath from "../../../assets/stamps/rofl.svg";
+import woozyPath from "../../../assets/stamps/woozy.svg";
 import innocentPath from "../../../assets/stamps/innocent.svg";
+import heartEyesPath from "../../../assets/stamps/heart_eyes.svg";
+import starStruckPath from "../../../assets/stamps/star_struck.svg";
 
 // prettier-ignore
 const stamps = [
-  ["innocent", innocentPath]
+  ["joy",         joyPath],
+  ["rofl",        roflPath],
+  ["woozy",       woozyPath],
+  ["innocent",    innocentPath],
+  ["heart_eyes",  heartEyesPath],
+  ["star_struck", starStruckPath],
 ] as const;
+
 type StampKey = typeof stamps[number][0];
 type StampMap = ReadonlyMap<StampKey, string>;
+
 export const stampMap: StampMap = new Map(stamps);
 
 export class StampFactory {
