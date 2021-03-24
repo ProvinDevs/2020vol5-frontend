@@ -1,19 +1,25 @@
 import { Group, Movable, SelectBox } from "../objects";
 import { Vector2 } from "../math";
 import { assertNonNull } from "../../../utils/assert";
+import { Emitter } from "../../../utils/emitter";
+
+type EventMap = {
+  add: (obj: Movable) => void;
+  change: (obj: Movable) => void;
+  remove: (obj: Movable) => void;
+};
 
 // †神クラス†
-export class MovableController {
+export class MovableController extends Emitter<EventMap> {
+  readonly movables = new Group<Movable>();
   selectedObject?: Movable;
   clickOffset?: Vector2;
   angleOffset?: number;
   isClick = false;
   selectBox = new SelectBox(20);
 
-  constructor(
-    private canvas: HTMLCanvasElement,
-    private movables: Group<Movable>,
-  ) {
+  constructor(private canvas: HTMLCanvasElement) {
+    super();
     this.handleMousedown = this.handleMousedown.bind(this);
     this.handleMousemove = this.handleMousemove.bind(this);
     this.handleMouseup = this.handleMouseup.bind(this);
@@ -25,6 +31,15 @@ export class MovableController {
     this.canvas.removeEventListener("mousedown", this.handleMousedown, false);
     this.canvas.removeEventListener("mousemove", this.handleMousemove, false);
     this.canvas.removeEventListener("mouseup", this.handleMouseup, false);
+  }
+
+  add(obj: Movable): void {
+    this.movables.add(obj);
+    this.emit("add", obj);
+  }
+  remove(obj: Movable): void {
+    this.movables.remove(obj);
+    this.emit("remove", obj);
   }
 
   private getClickPoint(event: MouseEvent): Vector2 {
@@ -113,7 +128,12 @@ export class MovableController {
   private handleMouseup(event: MouseEvent): void {
     this.clickOffset = undefined;
     this.angleOffset = undefined;
-    if (!this.isClick) return;
+    if (!this.isClick) {
+      if (this.selectedObject !== undefined) {
+        this.emit("change", this.selectedObject);
+      }
+      return;
+    }
 
     const clickedPos = this.getClickPoint(event);
     const clickedObjects = this.getClickedObjects(clickedPos);
