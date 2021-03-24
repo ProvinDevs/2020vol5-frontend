@@ -3,7 +3,7 @@ import { useRef, useEffect } from "react";
 
 import { Scene } from "../lib/editor/Scene";
 import { Vector2 } from "../lib/editor/math";
-import { Background, Movable, Group } from "../lib/editor/objects";
+import { Background } from "../lib/editor/objects";
 import { MovableController } from "../lib/editor/controllers/MovableController";
 import { StampFactory } from "../lib/editor/factory/StampFactory";
 
