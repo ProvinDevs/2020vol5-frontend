@@ -1,15 +1,21 @@
 import type { FC } from "react";
+import { BrowserRouter, Switch, Route } from "react-router-dom";
 
-import Editor from "./components/Editor";
-
-import mockedImage from "./mock/image.jpg";
-import styles from "./App.module.scss";
+import Home from "./pages/Home";
+import Take from "./pages/Take";
+import Edit from "./pages/Edit";
+import Finish from "./pages/Finish";
 
 const App: FC = () => {
   return (
-    <div className={styles["editor_wrapper"]}>
-      <Editor backgroundImagePath={mockedImage} />
-    </div>
+    <BrowserRouter>
+      <Switch>
+        <Route exact path="/" component={Home} />
+        <Route exact path="/take" component={Take} />
+        <Route exact path="/edit" component={Edit} />
+        <Route exact path="/finish" component={Finish} />
+      </Switch>
+    </BrowserRouter>
   );
 };
 
