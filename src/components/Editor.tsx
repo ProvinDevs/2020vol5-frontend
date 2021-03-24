@@ -23,9 +23,8 @@ const Editor: FC<Props> = ({ backgroundImagePath }) => {
     const background = new Background(canvas, backgroundImagePath);
     scene.add(background);
     const stampFactory = new StampFactory(canvas);
-    const stampGroup = new Group<Movable>();
-    scene.add(stampGroup);
-    const stampController = new MovableController(canvas, stampGroup);
+    const stampController = new MovableController(canvas);
+    scene.add(stampController.movables);
     scene.add(stampController.selectBox);
 
     stampController.on("add", console.log);
@@ -39,8 +38,8 @@ const Editor: FC<Props> = ({ backgroundImagePath }) => {
       const stampTest1 = stampFactory.create("innocent");
       const stampTest2 = stampFactory.create("innocent");
       stampTest2.position.add(new Vector2(0, 1000));
-      stampGroup.add(stampTest1);
-      stampGroup.add(stampTest2);
+      stampController.add(stampTest1);
+      stampController.add(stampTest2);
     }, 1000);
 
     // TODO: 追加実装
