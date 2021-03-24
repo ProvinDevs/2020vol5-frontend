@@ -4,14 +4,26 @@ import { useState } from "react";
 import { useHistory } from "react-router-dom";
 
 import { useStore } from "../lib/webrtc/store";
+import { GrpcApiClient } from "../lib/grpc";
+import { assertNonNull } from "../utils/assert";
 
 const Home: FC<BrowserRouterProps> = () => {
-  const [roomId, setRoomId] = useState("");
+  const [strRoomId, setStrRoomId] = useState("");
   const history = useHistory();
 
   const { setStore } = useStore();
 
   const handleClick = async () => {
+    const apiUrl = process.env["REACT_APP_API_URL"];
+    assertNonNull(apiUrl);
+    const client = new GrpcApiClient(apiUrl);
+    const roomId = Number.parseInt(strRoomId, 10);
+    if (isNaN(roomId)) {
+      throw new Error("roomId must be non NaN");
+    }
+    const signallingStream = await client.joinRoom(
+      Number.parseInt(strRoomId, 10),
+    );
     const mediaStream = await navigator.mediaDevices.getUserMedia({
       video: {
         width: { max: 1920 },
@@ -20,7 +32,7 @@ const Home: FC<BrowserRouterProps> = () => {
         facingMode: "user",
       },
     });
-    setStore({ mediaStream });
+    setStore({ mediaStream, signallingStream });
     history.push("/edit");
   };
 
@@ -29,8 +41,8 @@ const Home: FC<BrowserRouterProps> = () => {
       <div>
         <span>ルームID</span>
         <input
-          value={roomId}
-          onChange={({ target }) => setRoomId(target.value)}
+          value={strRoomId}
+          onChange={({ target }) => setStrRoomId(target.value)}
         />
         <button onChange={handleClick}>参加</button>
       </div>

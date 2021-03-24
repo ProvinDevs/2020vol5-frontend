@@ -1,8 +1,10 @@
 import type { Dispatch } from "react";
+import type { SignallingStream } from "../grpc";
 import { createContext, useContext, useReducer } from "react";
 
 type Store = Partial<{
   mediaStream: MediaStream;
+  signallingStream: SignallingStream;
 }>;
 type StoreDispatch = ((prev: Store) => Store) | Store;
 type StoreContext = {
