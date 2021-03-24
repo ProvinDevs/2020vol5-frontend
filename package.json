@@ -23,6 +23,8 @@
     "*.{js,ts,jsx,tsx,css,sass,scss}": "prettier --write"
   },
   "dependencies": {
+    "@tensorflow-models/body-pix": "^2.1.0",
+    "@tensorflow/tfjs": "^3.3.0",
     "core-js": "^3.9.1",
     "nanoid": "^3.1.22",
     "react": "^17.0.1",
