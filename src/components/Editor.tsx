@@ -8,6 +8,7 @@ import { MovableController } from "../lib/editor/controllers/MovableController";
 import { StampFactory } from "../lib/editor/factory/StampFactory";
 
 import styles from "./Editor.module.scss";
+import { EmojiPaletteController } from "../lib/editor/controllers/EmojiPaletteController";
 
 type Props = {
   backgroundImagePath: string;
@@ -26,6 +27,9 @@ const Editor: FC<Props> = ({ backgroundImagePath }) => {
     const stampController = new MovableController(canvas);
     scene.add(stampController.movables);
     scene.add(stampController.selectBox);
+
+    const emojiPalette = new EmojiPaletteController(canvas);
+    scene.add(emojiPalette.objects);
 
     stampController.on("add", console.log);
     stampController.on("change", console.log);
