@@ -4,9 +4,9 @@ import { assertNonNull } from "../../../utils/assert";
 import { Emitter } from "../../../utils/emitter";
 
 type EventMap = {
-  add: (event: unknown) => void;
-  change: (event: unknown) => void;
-  remove: (event: unknown) => void;
+  add: (obj: Movable) => void;
+  change: (obj: Movable) => void;
+  remove: (obj: Movable) => void;
 };
 
 // †神クラス†
@@ -25,6 +25,8 @@ export class MovableController extends Emitter<EventMap> {
     this.handleMousedown = this.handleMousedown.bind(this);
     this.handleMousemove = this.handleMousemove.bind(this);
     this.handleMouseup = this.handleMouseup.bind(this);
+    this.movables.on("add", (obj) => this.emit("add", obj));
+    this.movables.on("remove", (obj) => this.emit("remove", obj));
     canvas.addEventListener("mousedown", this.handleMousedown, false);
     canvas.addEventListener("mousemove", this.handleMousemove, false);
     canvas.addEventListener("mouseup", this.handleMouseup, false);
@@ -121,7 +123,12 @@ export class MovableController extends Emitter<EventMap> {
   private handleMouseup(event: MouseEvent): void {
     this.clickOffset = undefined;
     this.angleOffset = undefined;
-    if (!this.isClick) return;
+    if (!this.isClick) {
+      if (this.selectedObject !== undefined) {
+        this.emit("change", this.selectedObject);
+      }
+      return;
+    }
 
     const clickedPos = this.getClickPoint(event);
     const clickedObjects = this.getClickedObjects(clickedPos);
