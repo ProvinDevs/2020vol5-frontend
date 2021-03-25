@@ -6,7 +6,7 @@ import { useHistory } from "react-router-dom";
 import { useStore } from "../lib/webrtc/store";
 import { GrpcApiClient } from "../lib/grpc";
 import { assertNonNull } from "../utils/assert";
-import { Connection, ConnectionController } from "../lib/webrtc/connection";
+import { ConnectionController } from "../lib/webrtc/connection";
 
 const Home: FC<BrowserRouterProps> = () => {
   const [strRoomId, setStrRoomId] = useState("");
@@ -35,10 +35,7 @@ const Home: FC<BrowserRouterProps> = () => {
       signallingStream,
       mediaStream,
     );
-    const connections = joinedUserIds
-      .filter((id) => id !== myId)
-      .map((id) => new Connection(myId, id, signallingStream, mediaStream));
-    connectionController.add(...connections);
+    connectionController.addFromId(joinedUserIds.filter((id) => id !== myId));
 
     setStore({ mediaStream, signallingStream, myId, connectionController });
 

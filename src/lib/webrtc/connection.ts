@@ -1,6 +1,10 @@
 import { SignallingStream } from "../grpc";
+import { Emitter } from "../../utils/emitter";
 
-export class Connection {
+type ConnectionEventMap = {
+  establishConnection: (connection: Connection) => void;
+};
+export class Connection extends Emitter<ConnectionEventMap> {
   mediaStream?: MediaStream;
 
   private peer: RTCPeerConnection;
@@ -13,6 +17,7 @@ export class Connection {
     mediaStream: MediaStream,
     offer?: RTCSessionDescriptionInit,
   ) {
+    super();
     this.peer = new RTCPeerConnection({
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
     });
@@ -68,6 +73,7 @@ export class Connection {
     this.peer.addEventListener("connectionstatechange", () => {
       if (this.peer.connectionState === "connected") {
         console.info(`${this.id}: Connected`);
+        this.emit("establishConnection", this);
       }
     });
 
@@ -108,14 +114,19 @@ export class Connection {
   }
 }
 
-export class ConnectionController {
+type ConnectionControllerEventMap = {
+  addConnection: (connection: Connection) => void;
+  establishConnection: (connection: Connection) => void;
+};
+export class ConnectionController extends Emitter<ConnectionControllerEventMap> {
   connections: Array<Connection> = [];
 
   constructor(
-    myId: string,
+    private _myId: string,
     private _signallingStream: SignallingStream,
     private _mediaStream: MediaStream,
   ) {
+    super();
     this._signallingStream.on("sdp", (event) => {
       if (this.connections.some(({ id }) => id === event.fromId)) {
         return;
@@ -124,18 +135,32 @@ export class ConnectionController {
       const description: RTCSessionDescriptionInit = JSON.parse(
         event.sessionDescription,
       );
-      const connection = new Connection(
-        myId,
-        event.fromId,
-        _signallingStream,
-        _mediaStream,
-        description,
-      );
+      const connection = this.createConnection(event.fromId, description);
       this.connections.push(connection);
+      this.emit("addConnection", connection);
     });
   }
 
-  add(...connection: Array<Connection>): void {
-    this.connections.push(...connection);
+  addFromId(ids: Array<string>): void {
+    const connections = ids.map((id) => this.createConnection(id));
+    this.connections.push(...connections);
+    connections.forEach((connection) => this.emit("addConnection", connection));
+  }
+
+  private createConnection(
+    id: string,
+    description?: RTCSessionDescriptionInit,
+  ): Connection {
+    const connection = new Connection(
+      this._myId,
+      id,
+      this._signallingStream,
+      this._mediaStream,
+      description,
+    );
+    connection.on("establishConnection", (connection) =>
+      this.emit("establishConnection", connection),
+    );
+    return connection;
   }
 }
