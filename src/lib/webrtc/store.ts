@@ -1,13 +1,16 @@
 import type { Dispatch } from "react";
 import type { SignallingStream } from "../grpc";
 import { createContext, useContext, useReducer } from "react";
+import { Connection } from "./connection";
 
-type Store = Partial<{
-  mediaStream: MediaStream;
-  signallingStream: SignallingStream;
-}>;
-type StoreDispatch = ((prev: Store) => Store) | Store;
-type StoreContext = {
+type Store = {
+  myId?: string;
+  mediaStream?: MediaStream;
+  signallingStream?: SignallingStream;
+  connections: Array<Connection>;
+};
+type StoreDispatch = ((prev: Store) => Partial<Store>) | Partial<Store>;
+export type StoreContext = {
   store: Store;
   setStore: Dispatch<StoreDispatch>;
 };
@@ -27,7 +30,7 @@ export const useStoreReducer = (): StoreContext => {
       }
       return Object.assign({}, state, action);
     },
-    {},
+    { connections: [] },
   );
   return { store, setStore };
 };
