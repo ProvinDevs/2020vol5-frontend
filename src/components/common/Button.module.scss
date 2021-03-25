@@ -1,0 +1,24 @@
+@use "../../use";
+
+@mixin common {
+  @include use.transition;
+  @include use.shadow-style;
+  border: none;
+  &:hover {
+    box-shadow: none;
+  }
+}
+
+.square {
+  @include common;
+  @include use.radius;
+  color: use.color(black);
+  background-color: use.color(primary);
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1rem;
+}
+
+.round {
+  @include common;
+}

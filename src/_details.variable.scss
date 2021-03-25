@@ -1,0 +1,17 @@
+@use "./color.variable";
+
+@mixin transition {
+  transition: 0.2s;
+}
+
+@mixin shadow-style {
+  box-shadow: 0px 0px 10px color.color(shadow);
+}
+
+@mixin radius($corner: 0.65) {
+  @if $corner == round {
+    border-radius: 50%;
+  } @else {
+    border-radius: 0.65rem;
+  }
+}
