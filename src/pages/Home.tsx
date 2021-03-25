@@ -6,6 +6,7 @@ import { useHistory } from "react-router-dom";
 import { useStore } from "../lib/webrtc/store";
 import { GrpcApiClient } from "../lib/grpc";
 import { assertNonNull } from "../utils/assert";
+import { Connection } from "../lib/webrtc/connection";
 
 const Home: FC<BrowserRouterProps> = () => {
   const [strRoomId, setStrRoomId] = useState("");
@@ -24,18 +25,31 @@ const Home: FC<BrowserRouterProps> = () => {
     });
   };
 
+  const handleJoin = async (client: GrpcApiClient, roomId: number) => {
+    const signallingStream = await client.joinRoom(roomId);
+    signallingStream.on("sdp", console.log);
+    signallingStream.on("iceCandidate", console.log);
+    const myId = signallingStream.getMyId();
+    const { joinedUserIds } = await signallingStream.getRoomInfo();
+    const mediaStream = await getMediaStream();
+    const connections = joinedUserIds
+      .filter((id) => id !== myId)
+      .map((id) => new Connection(myId, id, signallingStream, mediaStream));
+
+    setStore({ mediaStream, signallingStream, myId, connections });
+
+    history.push("/take");
+  };
+
   const handleCreateClick = async () => {
     const apiUrl = process.env["REACT_APP_API_URL"];
     assertNonNull(apiUrl);
     const client = new GrpcApiClient(apiUrl);
 
     const { roomId } = await client.createNewRoom();
-    const signallingStream = await client.joinRoom(roomId);
+    console.log(`Room ID: ${roomId}`);
 
-    const mediaStream = await getMediaStream();
-    setStore({ mediaStream, signallingStream });
-
-    history.push("/edit");
+    await handleJoin(client, roomId);
   };
 
   const handleJoinClick = async () => {
@@ -47,12 +61,8 @@ const Home: FC<BrowserRouterProps> = () => {
     if (isNaN(roomId)) {
       throw new Error("roomId must be non NaN");
     }
-    const signallingStream = await client.joinRoom(roomId);
 
-    const mediaStream = await getMediaStream();
-    setStore({ mediaStream, signallingStream });
-
-    history.push("/edit");
+    await handleJoin(client, roomId);
   };
 
   return (
