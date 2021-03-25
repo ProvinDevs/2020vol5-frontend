@@ -70,17 +70,6 @@ export class EmojiPaletteController {
     this.canvas.removeEventListener("mouseup", this.handleClick);
   };
 
-  private getClickedPoint = (event: MouseEvent): Vector2 => {
-    const fullArea = this.canvas.getBoundingClientRect();
-
-    const x =
-      (event.clientX - fullArea.left) * (this.canvas.width * fullArea.width);
-    const y =
-      (event.clientY - fullArea.top) * (this.canvas.height * fullArea.height);
-
-    return new Vector2(x, y);
-  };
-
   private getClickPoint = (event: MouseEvent): Vector2 => {
     const rect = this.canvas.getBoundingClientRect();
     const x = (event.clientX - rect.left) * (this.canvas.width / rect.width);
