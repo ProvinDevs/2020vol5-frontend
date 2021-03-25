@@ -1,14 +1,22 @@
 import { Vector2 } from "../math";
 import { Group, Circle, Drawable } from "../objects";
 import smileIcon from "../../../assets/smile.svg";
+import { EmojiPalette } from "../objects/EmojiPalette";
+import { StampFactory } from "../factory/StampFactory";
+import { MovableController } from "./MovableController";
 
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 export class EmojiPaletteController {
-  private isPaletteShown = false;
-
   public objects: Group<Drawable> = new Group();
   private button: Circle | undefined;
+  private palette: EmojiPalette | undefined;
+  private isPaletteShown = false;
 
-  constructor(private canvas: HTMLCanvasElement) {
+  constructor(
+    private readonly canvas: HTMLCanvasElement,
+    private readonly emojiFactory: StampFactory,
+    private readonly emojiController: MovableController,
+  ) {
     canvas.addEventListener("mouseup", this.handleClick);
 
     // resize イベントを拾いたかったが上手く行かなかった
@@ -24,7 +32,6 @@ export class EmojiPaletteController {
     const buttonX = this.canvas.width * 0.33;
     const buttonY = this.canvas.height * 0.9;
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.objects.remove(this.button!);
     this.button = new Circle(
       new Vector2(buttonX, buttonY),
@@ -34,7 +41,30 @@ export class EmojiPaletteController {
       0.6,
     );
     this.objects.add(this.button);
+
+    // palette
+    const paletteBottomY = buttonY - radius;
+    this.objects.remove(this.palette!);
+
+    this.palette = new EmojiPalette(
+      new Vector2(buttonX, paletteBottomY),
+      radius,
+    );
+
+    if (this.isPaletteShown) {
+      this.objects.add(this.palette);
+    }
   };
+
+  private togglePaletteShown() {
+    if (this.isPaletteShown) {
+      this.objects.remove(this.palette!);
+    } else {
+      this.objects.add(this.palette!);
+    }
+
+    this.isPaletteShown = !this.isPaletteShown;
+  }
 
   destruct = (): void => {
     this.canvas.removeEventListener("mouseup", this.handleClick);
@@ -62,7 +92,17 @@ export class EmojiPaletteController {
     const clickPoint = this.getClickPoint(event);
 
     if (this.button!.contains(clickPoint)) {
-      console.log("clicked!");
+      this.togglePaletteShown();
+      return;
+    }
+
+    if (this.isPaletteShown) {
+      const emojiOnClickPoint = this.palette!.getEmojiOnPos(clickPoint);
+
+      if (emojiOnClickPoint != null) {
+        const emoji = this.emojiFactory.create(emojiOnClickPoint);
+        this.emojiController.add(emoji);
+      }
     }
   };
 }

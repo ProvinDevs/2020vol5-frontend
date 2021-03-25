@@ -1,4 +1,3 @@
-import { createContext } from "react";
 import { Vector2 } from "../math";
 import { Drawable } from "./Drawable";
 
@@ -14,7 +13,6 @@ export class Circle implements Drawable {
     public foregroundSizeMultiplier?: number,
   ) {
     if (foregroundImageURL) {
-      console.log("trying to load", foregroundImageURL);
       this.foregroundImage = new Image();
       this.foregroundImage.src = foregroundImageURL;
     }

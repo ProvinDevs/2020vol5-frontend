@@ -28,7 +28,12 @@ const Editor: FC<Props> = ({ backgroundImagePath }) => {
     scene.add(stampController.movables);
     scene.add(stampController.selectBox);
 
-    const emojiPalette = new EmojiPaletteController(canvas);
+    const emojiPalette = new EmojiPaletteController(
+      canvas,
+      stampFactory,
+      stampController,
+    );
+
     scene.add(emojiPalette.objects);
 
     stampController.on("add", console.log);

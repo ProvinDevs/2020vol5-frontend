@@ -10,7 +10,7 @@ import heartEyesPath from "../../../assets/stamps/heart_eyes.svg";
 import starStruckPath from "../../../assets/stamps/star_struck.svg";
 
 // prettier-ignore
-const stamps = [
+export const stamps = [
   ["joy",         joyPath],
   ["rofl",        roflPath],
   ["woozy",       woozyPath],
@@ -19,8 +19,8 @@ const stamps = [
   ["star_struck", starStruckPath],
 ] as const;
 
-type StampKey = typeof stamps[number][0];
-type StampMap = ReadonlyMap<StampKey, string>;
+export type StampKey = typeof stamps[number][0];
+export type StampMap = ReadonlyMap<StampKey, string>;
 
 export const stampMap: StampMap = new Map(stamps);
 
