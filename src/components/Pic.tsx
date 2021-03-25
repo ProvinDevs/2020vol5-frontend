@@ -2,10 +2,12 @@ import type { FC } from "react";
 import { useRef, useEffect, useState, useCallback } from "react";
 import "@tensorflow/tfjs";
 import * as bodyPix from "@tensorflow-models/body-pix";
+import "./Pic.scss";
 
 const Pic: FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [model, setModel] = useState<bodyPix.BodyPix>();
+  const [camera, setCamera] = useState<MediaStream>();
 
   useEffect(() => {
     bodyPix.load().then((net) => {
@@ -13,28 +15,29 @@ const Pic: FC = () => {
       console.log("bodyPix ready");
     });
   }, []);
-
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (canvas === null || model == undefined) return;
-
-    const video = document.createElement("video");
-    video.id = "video";
-    video.autoplay = true;
-
-    // video要素にWebカメラの映像を表示させる
     navigator.mediaDevices
       .getUserMedia({
         audio: false,
         video: {
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
+          width: { ideal: 960 },
+          height: { ideal: 540 },
         },
       })
-      .then((stream) => (video.srcObject = stream));
+      .then((stream) => {
+        setCamera(stream);
+      });
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas == null || model == undefined || camera == undefined) return;
+
+    const video = document.createElement("video");
+    video.autoplay = true;
+    video.srcObject = camera!;
 
     const EditCanvas = document.createElement("canvas");
-    EditCanvas.id = "camera-canvas";
     EditCanvas.width = 960;
     EditCanvas.height = 540;
     const canvasCtx = EditCanvas.getContext("2d");
@@ -61,20 +64,15 @@ const Pic: FC = () => {
           flipHorizontal,
         );
       });
-
       requestId = requestAnimationFrame(animate);
     };
     animate();
     return () => {
+      camera.getTracks().forEach((track) => track.stop());
       cancelAnimationFrame(requestId);
     };
-  }, [canvasRef, model]);
-
-  return (
-    <>
-      <canvas id="canvas" width={960} height={540} ref={canvasRef} />
-    </>
-  );
+  }, [canvasRef, model, camera]);
+  return <canvas className="canvas" ref={canvasRef} />;
 };
 
 export default Pic;
