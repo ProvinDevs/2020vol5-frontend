@@ -48,6 +48,7 @@ const Editor: FC<Props> = ({ backgroundImagePath }) => {
     return () => {
       cancelAnimationFrame(requestId);
       stampController.deconstructor();
+      emojiPalette.destruct();
     };
   }, [canvasRef, backgroundImagePath]);
 

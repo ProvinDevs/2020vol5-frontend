@@ -56,7 +56,7 @@ export class EmojiPaletteController {
     }
   };
 
-  private togglePaletteShown() {
+  private togglePaletteShown = () => {
     if (this.isPaletteShown) {
       this.objects.remove(this.palette!);
     } else {
@@ -64,7 +64,7 @@ export class EmojiPaletteController {
     }
 
     this.isPaletteShown = !this.isPaletteShown;
-  }
+  };
 
   destruct = (): void => {
     this.canvas.removeEventListener("mouseup", this.handleClick);
