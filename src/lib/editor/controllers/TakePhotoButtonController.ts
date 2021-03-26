@@ -26,7 +26,7 @@ export class TakePhotoButtonController {
 
   onResize = (): void => {
     const radius = Math.min(this.canvas.width, this.canvas.height) / 16;
-    const buttonX = this.canvas.width * 0.66;
+    const buttonX = this.canvas.width * 0.56;
     const buttonY = this.canvas.height * 0.9;
 
     this.objects.remove(this.takePhotoButton!);
