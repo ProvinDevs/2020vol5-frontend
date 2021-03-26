@@ -30,7 +30,7 @@ type N2 = [N, N];
 type N3N2 = [N2, N2, N2];
 type N4N2 = [N2, N2, N2, N2];
 
-const bodyAlpha = 0.8;
+const bodyAlpha = 0.9;
 
 export class EmojiPalette implements Drawable {
   constructor(public bottomPoint: Vector2, public triangleSideLength: number) {}
@@ -44,7 +44,7 @@ export class EmojiPalette implements Drawable {
 
     const vertexes: N3N2 = [
       // 下
-      [this.bottomPoint.x, this.bottomPoint.y],
+      [this.bottomPoint.x, this.bottomPoint.y - this.triangleHeight / 2.5],
 
       // 左上
       [
@@ -62,10 +62,8 @@ export class EmojiPalette implements Drawable {
     ctx.moveTo(...vertexes[0]);
     ctx.lineTo(...vertexes[1]);
     ctx.lineTo(...vertexes[2]);
-    ctx.moveTo(...vertexes[1]);
-    ctx.lineTo(...vertexes[2]);
 
-    ctx.fillStyle = "black";
+    ctx.fillStyle = "#1E1E1E";
     withAlpha(ctx, bodyAlpha, () => ctx.fill());
   }
 
@@ -106,14 +104,15 @@ export class EmojiPalette implements Drawable {
     const vertexes = this.bodyVertexes;
 
     ctx.beginPath();
-    ctx.moveTo(...vertexes[0]);
-    ctx.lineTo(...vertexes[1]);
-    ctx.lineTo(...vertexes[2]);
-    ctx.moveTo(...vertexes[3]);
-    ctx.lineTo(...vertexes[1]);
-    ctx.lineTo(...vertexes[2]);
+    this.roundedRect(
+      ctx,
+      this.bottomPoint.x - this.bodySideLength / 2,
+      this.bottomPoint.y - this.triangleHeight - this.bodySideLength,
+      this.bodySideLength,
+      this.bodySideLength,
+      50,
+    );
 
-    ctx.fillStyle = "black";
     withAlpha(ctx, bodyAlpha, () => ctx.fill());
 
     // draw emojis
@@ -179,5 +178,24 @@ export class EmojiPalette implements Drawable {
   draw(ctx: CanvasRenderingContext2D): void {
     this.drawTriangle(ctx);
     this.drawBody(ctx);
+  }
+
+  private roundedRect(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number,
+  ) {
+    ctx.moveTo(x, y + radius);
+    ctx.lineTo(x, y + height - radius);
+    ctx.arcTo(x, y + height, x + radius, y + height, radius);
+    ctx.lineTo(x + width - radius, y + height);
+    ctx.arcTo(x + width, y + height, x + width, y + height - radius, radius);
+    ctx.lineTo(x + width, y + radius);
+    ctx.arcTo(x + width, y, x + width - radius, y, radius);
+    ctx.lineTo(x + radius, y);
+    ctx.arcTo(x, y, x, y + radius, radius);
   }
 }
