@@ -49,7 +49,7 @@ const Home: FC<BrowserRouterProps> = () => {
 
     setStore({ mediaStream, signallingStream, myId, connectionController });
 
-    history.push("/edit");
+    history.push("/take");
   };
 
   const handleCreateClick = async () => {
