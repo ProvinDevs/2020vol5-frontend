@@ -16,7 +16,7 @@ export class MovableController extends Emitter<EventMap> {
   clickOffset?: Vector2;
   angleOffset?: number;
   isClick = false;
-  selectBox = new SelectBox(20);
+  selectBox = new SelectBox(6);
 
   constructor(private canvas: HTMLCanvasElement) {
     super();
