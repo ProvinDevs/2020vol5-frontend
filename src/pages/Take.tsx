@@ -42,11 +42,15 @@ const Take: FC<BrowserRouterProps> = () => {
       outputCanvas.width,
       outputCanvas.height,
     );
-    outputCanvas.toBlob((blob) => {
-      const imageUrl = URL.createObjectURL(blob);
-      setStore({ takenPhotoUrl: imageUrl });
-      history.push("/edit");
-    });
+    outputCanvas.toBlob(
+      (blob) => {
+        const imageUrl = URL.createObjectURL(blob);
+        setStore({ takenPhotoUrl: imageUrl });
+        history.push("/edit");
+      },
+      "image/jpeg",
+      80,
+    );
   };
   const handleClick = () => {
     handleTake();

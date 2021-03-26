@@ -53,7 +53,9 @@ export class TakePhotoButtonController {
     const clickedPoint = this.getClickPoint(e);
 
     if (this.takePhotoButton!.contains(clickedPoint)) {
-      const canvas = new OffscreenCanvas(this.canvas.width, this.canvas.height);
+      const canvas = document.createElement("canvas");
+      canvas.width = this.canvas.width;
+      canvas.height = this.canvas.height;
 
       const ctx = canvas.getContext("2d");
 
@@ -64,10 +66,9 @@ export class TakePhotoButtonController {
       this.background.draw((ctx as unknown) as CanvasRenderingContext2D);
       this.stamps.movables.draw((ctx as unknown) as CanvasRenderingContext2D);
 
-      const photo = await canvas.convertToBlob({
-        type: "image/jpeg",
-        quality: 80,
-      });
+      const photo = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, "image/jpeg", 80),
+      );
 
       const link = document.createElement("a");
       link.download = "photo.jpeg"; // downloaded filename
