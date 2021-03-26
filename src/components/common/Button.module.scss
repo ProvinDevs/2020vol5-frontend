@@ -7,6 +7,10 @@
   &:hover {
     box-shadow: none;
   }
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .square {
