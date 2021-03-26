@@ -82,6 +82,7 @@ const StreamController: FC<ClientOnlyProps> = ({ client }) => {
   const [roomIdInput, setRoomIdInput] = useState<number>(0);
   const [stream, setStream] = useState<SignallingStream | null>(null);
   const [messages, setMessages] = useState<Array<string>>([]);
+  const [connectionError, setConnectionError] = useState<boolean>(false);
 
   // (to_id, content)
   const [sdpInput, setSdpInput] = useState<[string, string]>(["", ""]);
@@ -92,9 +93,15 @@ const StreamController: FC<ClientOnlyProps> = ({ client }) => {
   const onJoinButtonClick = async () => {
     const stream = await client.joinRoom(roomIdInput);
 
+    if (stream == null) {
+      setConnectionError(true);
+      return;
+    }
+
     stream.on("sdp", (s) => setMessages((m) => [...m, toJson(s)]));
     stream.on("iceCandidate", (i) => setMessages((m) => [...m, toJson(i)]));
 
+    setConnectionError(false);
     setStream(stream);
   };
 
@@ -116,6 +123,8 @@ const StreamController: FC<ClientOnlyProps> = ({ client }) => {
             onChange={(x) => setRoomIdInput(x.target.valueAsNumber)}
           />
           <button onClick={onJoinButtonClick}>join</button>
+
+          {connectionError && <h3>Connection error. Check room id.</h3>}
         </>
       )}
 
