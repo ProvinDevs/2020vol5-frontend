@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import Take from "./pages/Take";
 import Edit from "./pages/Edit";
 import Finish from "./pages/Finish";
+import NotFound from "./pages/NotFound";
 
 const App: FC = () => {
   const store = useStoreReducer();
@@ -21,6 +22,7 @@ const App: FC = () => {
           <Route exact path="/take" component={Take} />
           <Route exact path="/edit" component={Edit} />
           <Route exact path="/finish" component={Finish} />
+          <Route component={NotFound} />
         </Switch>
       </BrowserRouter>
     </StoreProvider>

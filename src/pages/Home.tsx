@@ -1,8 +1,9 @@
+import "@tensorflow/tfjs";
 import type { FC } from "react";
 import { useState } from "react";
 import type { BrowserRouterProps } from "react-router-dom";
 import { useHistory } from "react-router-dom";
-
+import * as bodyPix from "@tensorflow-models/body-pix";
 import { useStore } from "../lib/webrtc/store";
 import { GrpcApiClient } from "../lib/grpc";
 import { assertNonNull } from "../utils/assert";
@@ -11,6 +12,12 @@ import Button from "../components/common/Button";
 import Input from "../components/common/Input";
 import Modal from "../components/common/Modal";
 import styles from "./Home.module.scss";
+
+declare global {
+  interface HTMLCanvasElement {
+    captureStream(frameRate?: number): MediaStream;
+  }
+}
 
 const Home: FC<BrowserRouterProps> = () => {
   const [isClose, setMenuState] = useState<boolean>(true);
@@ -21,15 +28,53 @@ const Home: FC<BrowserRouterProps> = () => {
 
   const { setStore } = useStore();
 
-  const getMediaStream = (): Promise<MediaStream> => {
-    return navigator.mediaDevices.getUserMedia({
+  const getMediaStream = async (): Promise<MediaStream> => {
+    const width = 960;
+    const height = 540;
+    const model = await bodyPix.load();
+    const camera = await navigator.mediaDevices.getUserMedia({
       video: {
-        width: { max: 1920 },
-        height: { max: 1080 },
+        width: { max: width },
+        height: { max: height },
         aspectRatio: { exact: 1.7777777778 },
         facingMode: "user",
       },
     });
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+
+    const video = document.createElement("video");
+    video.autoplay = true;
+    video.srcObject = camera;
+
+    const EditCanvas = document.createElement("canvas");
+    EditCanvas.width = width;
+    EditCanvas.height = height;
+    const ctx = EditCanvas.getContext("2d");
+    assertNonNull(ctx);
+
+    const animate = async () => {
+      ctx.drawImage(video, 0, 0, width, height);
+      const segmentation = await model.segmentPerson(EditCanvas);
+      const bgColor = { r: 255, g: 255, b: 255, a: 255 };
+      const fgColor = { r: 0, g: 0, b: 0, a: 0 };
+      const roomPartImage = bodyPix.toMask(segmentation, fgColor, bgColor);
+      const opacity = 1.0;
+      const maskBlurAmount = 3;
+      const flipHorizontal = false;
+      bodyPix.drawMask(
+        canvas,
+        EditCanvas,
+        roomPartImage,
+        opacity,
+        maskBlurAmount,
+        flipHorizontal,
+      );
+      requestAnimationFrame(animate);
+    };
+    animate().catch(console.error);
+    return canvas.captureStream(20);
   };
 
   const handleJoin = (client: GrpcApiClient, roomId: number): Promise<void> => {
@@ -53,9 +98,15 @@ const Home: FC<BrowserRouterProps> = () => {
       );
       connectionController.addFromId(joinedUserIds.filter((id) => id !== myId));
 
-      setStore({ mediaStream, signallingStream, myId, connectionController });
-
+      setStore({
+        mediaStream,
+        signallingStream,
+        myId,
+        roomId,
+        connectionController,
+      });
       setConnecting(false);
+
       history.push("/take");
     })();
   };
