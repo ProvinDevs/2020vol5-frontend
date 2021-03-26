@@ -5,6 +5,5 @@
     "module": "esnext",
     "jsx": "react-jsx",
     "sourceMap": true,
-    "types": [],
   },
 }

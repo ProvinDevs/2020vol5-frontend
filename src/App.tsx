@@ -2,6 +2,7 @@ import type { FC } from "react";
 import { useEffect, useState } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 
+import { StoreProvider, useStoreReducer } from "./lib/webrtc/store";
 import { ApiClient, GrpcApiClient, Room, SignallingStream } from "./lib/grpc";
 
 import Home from "./pages/Home";
@@ -10,15 +11,19 @@ import Edit from "./pages/Edit";
 import Finish from "./pages/Finish";
 
 const App: FC = () => {
+  const store = useStoreReducer();
+
   return (
-    <BrowserRouter>
-      <Switch>
-        <Route exact path="/" component={Home} />
-        <Route exact path="/take" component={Take} />
-        <Route exact path="/edit" component={Edit} />
-        <Route exact path="/finish" component={Finish} />
-      </Switch>
-    </BrowserRouter>
+    <StoreProvider value={store}>
+      <BrowserRouter>
+        <Switch>
+          <Route exact path="/" component={Home} />
+          <Route exact path="/take" component={Take} />
+          <Route exact path="/edit" component={Edit} />
+          <Route exact path="/finish" component={Finish} />
+        </Switch>
+      </BrowserRouter>
+    </StoreProvider>
   );
 };
 

@@ -8,6 +8,7 @@ import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import sass from "sass";
 import fibers from "fibers";
 import { resolve } from "path";
+import "dotenv/config";
 
 declare module "webpack" {
   interface Configuration {
