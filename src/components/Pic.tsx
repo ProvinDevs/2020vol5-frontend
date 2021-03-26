@@ -4,7 +4,16 @@ import "@tensorflow/tfjs";
 import * as bodyPix from "@tensorflow-models/body-pix";
 import "./Pic.scss";
 
-const Pic: FC = () => {
+declare global {
+  interface HTMLCanvasElement {
+    captureStream(frameRate?: number): MediaStream;
+  }
+}
+interface IAppInterface {
+  MyStream: any;
+}
+
+const Pic: FC<IAppInterface> = ({ MyStream }) => {
   const [model, setModel] = useState<bodyPix.BodyPix>();
   const [camera, setCamera] = useState<MediaStream>();
 
@@ -29,7 +38,9 @@ const Pic: FC = () => {
   }, []);
 
   useEffect(() => {
-    const canvas = document.createElement("canvas");
+    const canvas = (document.createElement(
+      "canvas",
+    ) as unknown) as HTMLCanvasElement;
     canvas.width = 960;
     canvas.height = 540;
     if (model == undefined || camera == undefined) return;
@@ -68,8 +79,8 @@ const Pic: FC = () => {
       requestId = requestAnimationFrame(animate);
     };
     animate();
-    //tsの型定義をいれてから
-    //const stream = canvas.cuptureStream();
+    const stream = canvas.captureStream(20);
+    MyStream(stream);
     return () => {
       camera.getTracks().forEach((track) => track.stop());
       cancelAnimationFrame(requestId);

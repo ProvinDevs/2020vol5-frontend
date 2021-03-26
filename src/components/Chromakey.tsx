@@ -54,7 +54,6 @@ const Chtomakey: FC<IAppInterface> = (prop) => {
       canvasList.map((x) => {
         x.remove();
       });
-      //canvasList[0]!.remove();
       cancelAnimationFrame(requestId);
     };
   }, [prop]);
