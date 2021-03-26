@@ -8,7 +8,6 @@ import { ApiClient, GrpcApiClient, Room, SignallingStream } from "./lib/grpc";
 import Home from "./pages/Home";
 import Take from "./pages/Take";
 import Edit from "./pages/Edit";
-import Finish from "./pages/Finish";
 import NotFound from "./pages/NotFound";
 
 const App: FC = () => {
@@ -21,7 +20,6 @@ const App: FC = () => {
           <Route exact path="/" component={Home} />
           <Route exact path="/take" component={Take} />
           <Route exact path="/edit" component={Edit} />
-          <Route exact path="/finish" component={Finish} />
           <Route component={NotFound} />
         </Switch>
       </BrowserRouter>
