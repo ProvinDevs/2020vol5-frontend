@@ -10,6 +10,7 @@ import { ConnectionController } from "../lib/webrtc/connection";
 
 const Home: FC<BrowserRouterProps> = () => {
   const [strRoomId, setStrRoomId] = useState("");
+  const [connectionError, setConnectionError] = useState(false);
   const history = useHistory();
 
   const { setStore } = useStore();
@@ -27,6 +28,12 @@ const Home: FC<BrowserRouterProps> = () => {
 
   const handleJoin = async (client: GrpcApiClient, roomId: number) => {
     const signallingStream = await client.joinRoom(roomId);
+
+    if (signallingStream == null) {
+      setConnectionError(true);
+      return;
+    }
+
     const myId = signallingStream.getMyId();
     const { joinedUserIds } = await signallingStream.getRoomInfo();
     const mediaStream = await getMediaStream();
@@ -78,6 +85,9 @@ const Home: FC<BrowserRouterProps> = () => {
           onChange={({ target }) => setStrRoomId(target.value)}
         />
         <button onClick={handleJoinClick}>参加</button>
+        {connectionError && (
+          <div>接続に失敗しました。ルームIDを確認してください。</div>
+        )}
       </div>
     </div>
   );
