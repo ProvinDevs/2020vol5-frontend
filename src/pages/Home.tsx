@@ -16,6 +16,7 @@ const Home: FC<BrowserRouterProps> = () => {
   const [isClose, setMenuState] = useState<boolean>(true);
   const [strRoomId, setStrRoomId] = useState("");
   const [connectionError, setConnectionError] = useState(false);
+  const [connecting, setConnecting] = useState(false);
   const history = useHistory();
 
   const { setStore } = useStore();
@@ -31,27 +32,32 @@ const Home: FC<BrowserRouterProps> = () => {
     });
   };
 
-  const handleJoin = async (client: GrpcApiClient, roomId: number) => {
-    const signallingStream = await client.joinRoom(roomId);
+  const handleJoin = (client: GrpcApiClient, roomId: number): Promise<void> => {
+    setConnecting(true);
+    return (async () => {
+      const signallingStream = await client.joinRoom(roomId);
 
-    if (signallingStream == null) {
-      setConnectionError(true);
-      return;
-    }
+      if (signallingStream == null) {
+        setConnectionError(true);
+        setConnecting(false);
+        return;
+      }
 
-    const myId = signallingStream.getMyId();
-    const { joinedUserIds } = await signallingStream.getRoomInfo();
-    const mediaStream = await getMediaStream();
-    const connectionController = new ConnectionController(
-      myId,
-      signallingStream,
-      mediaStream,
-    );
-    connectionController.addFromId(joinedUserIds.filter((id) => id !== myId));
+      const myId = signallingStream.getMyId();
+      const { joinedUserIds } = await signallingStream.getRoomInfo();
+      const mediaStream = await getMediaStream();
+      const connectionController = new ConnectionController(
+        myId,
+        signallingStream,
+        mediaStream,
+      );
+      connectionController.addFromId(joinedUserIds.filter((id) => id !== myId));
 
-    setStore({ mediaStream, signallingStream, myId, connectionController });
+      setStore({ mediaStream, signallingStream, myId, connectionController });
 
-    history.push("/take");
+      setConnecting(false);
+      history.push("/take");
+    })();
   };
 
   const handleCreateClick = async () => {
@@ -82,10 +88,17 @@ const Home: FC<BrowserRouterProps> = () => {
     <div className={styles["wrapper"]}>
       <div className={styles["inner-wrapper"]}>
         <h1 className={styles["title"]}>撮影をはじめよう</h1>
-        <Button onClick={handleCreateClick} buttonStyle="square">
-          撮影ルームを作成
+
+        <Button
+          onClick={handleCreateClick}
+          buttonStyle="square"
+          disabled={connecting}
+        >
+          {connecting ? "接続中です" : "撮影ルームを作成"}
         </Button>
+
         <span className={styles["or"]}>または</span>
+
         <Input
           value={strRoomId}
           onChange={({ target }) => setStrRoomId(target.value)}
@@ -93,8 +106,9 @@ const Home: FC<BrowserRouterProps> = () => {
           className={styles["input"]}
         />
         <Button onClick={handleJoinClick} buttonStyle="square">
-          撮影ルームに入る
+          {connecting ? "接続中です" : "撮影ルームに入る"}
         </Button>
+
         {connectionError && (
           <div>接続に失敗しました。ルームIDを確認してください。</div>
         )}
