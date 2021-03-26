@@ -1,5 +1,9 @@
 @use "./color.variable";
 
+@function solid-border($thickness: 2px, $color: color.color(grey2)) {
+  @return $thickness solid $color;
+}
+
 @mixin transition {
   transition: 0.2s;
 }
