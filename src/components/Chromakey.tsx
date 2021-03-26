@@ -9,6 +9,8 @@ interface IAppInterface {
 const Chtomakey: FC<IAppInterface> = (prop) => {
   const canvasList: HTMLCanvasElement[] = [];
   const videoList: HTMLVideoElement[] = [];
+  const ctxList: CanvasRenderingContext2D[] = [];
+
   useEffect(() => {
     if (prop.MediaStream[0] == null) return;
     const list = document.getElementById("list");
@@ -23,6 +25,8 @@ const Chtomakey: FC<IAppInterface> = (prop) => {
       video.autoplay = true;
       video.srcObject = prop.MediaStream[i]!;
       videoList.push(video);
+      const ctx = canvas.getContext("2d");
+      ctxList.push(ctx!);
     }
     let requestId: number;
 
@@ -30,9 +34,8 @@ const Chtomakey: FC<IAppInterface> = (prop) => {
 
     const anime = () => {
       for (let i = 0; i < count; i++) {
-        const ctx = canvasList[i]?.getContext("2d");
-        ctx?.drawImage(videoList[i]!, 0, 0, 960, 540);
-        const imgData = ctx!.getImageData(0, 0, 960, 540);
+        ctxList[i]!.drawImage(videoList[i]!, 0, 0, 960, 540);
+        const imgData = ctxList[i]!.getImageData(0, 0, 960, 540);
         const data = imgData.data;
         const nn = 960 * 540 * 4;
         for (let pi = 0; pi < nn; pi += 4) {
@@ -44,7 +47,7 @@ const Chtomakey: FC<IAppInterface> = (prop) => {
             data[pi + 3] = 0;
           }
         }
-        ctx?.putImageData(imgData, 0, 0);
+        ctxList[i]!.putImageData(imgData, 0, 0);
       }
       requestId = requestAnimationFrame(anime);
     };
