@@ -63,3 +63,21 @@ jobs:
         with:
           name: dist
           path: dist
+
+  deploy:
+    runs-on: ubuntu-latest
+    #if: github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: dist
+          path: dist
+      - uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: provindevs
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+      - uses: google-github-actions/upload-cloud-storage@main
+        with:
+          path: dist
+          destination: provindevs-frontend
