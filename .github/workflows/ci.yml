@@ -58,7 +58,7 @@ jobs:
       - name: Run build
         run: pnpm build
         env:
-          REACT_APP_API_URL: ${{ secrets.API_URL }}
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
 
       - name: Upload dist
         uses: actions/upload-artifact@v2
@@ -82,4 +82,6 @@ jobs:
           project_id: provindevs
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
-      - run: gsutil cp -r dist/* gs://provindevs-frontend/
+      - run: |
+          gsutil rm -r gs://provindevs-frontend/*
+          gsutil cp -r dist/* gs://provindevs-frontend/
