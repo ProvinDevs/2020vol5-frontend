@@ -1,0 +1,89 @@
+@use "../../use";
+
+.modal {
+  .modal-check {
+    display: none;
+  }
+  .modal-body {
+    @include use.blur;
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: use.color(tr-black);
+    z-index: 2;
+  }
+  .modal-label {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+  }
+  .modal-window {
+    z-index: 4;
+    animation: fadein 0.3s 1, zoomin 0.3s 1;
+  }
+  .modal-inner {
+    @include use.shadow-style;
+    @include use.radius;
+    background-color: use.color(white);
+    width: 80vw;
+    max-width: 500px;
+  }
+  .modal-content {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .modal-check:checked + .modal-body {
+    animation: fadeout 0.2s 1 forwards, hide 0.1s 0.2s 1 forwards;
+    .modal-window {
+      animation: zoomout 0.2s 1 forwards;
+    }
+  }
+}
+
+@keyframes fadein {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes fadeout {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes zoomin {
+  0% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes zoomout {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0.9);
+  }
+}
+@keyframes hide {
+  0% {
+    visibility: visible;
+  }
+  100% {
+    visibility: hidden;
+  }
+}

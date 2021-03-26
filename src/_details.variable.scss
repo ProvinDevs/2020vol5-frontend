@@ -19,3 +19,7 @@
     border-radius: 0.65rem;
   }
 }
+
+@mixin blur {
+  backdrop-filter: blur(30px);
+}

@@ -9,9 +9,11 @@ import { assertNonNull } from "../utils/assert";
 import { ConnectionController } from "../lib/webrtc/connection";
 import Button from "../components/common/Button";
 import Input from "../components/common/Input";
+import Modal from "../components/common/Modal";
 import styles from "./Home.module.scss";
 
 const Home: FC<BrowserRouterProps> = () => {
+  const [isClose, setMenuState] = useState<boolean>(true);
   const [strRoomId, setStrRoomId] = useState("");
   const [connectionError, setConnectionError] = useState(false);
   const history = useHistory();
@@ -96,6 +98,10 @@ const Home: FC<BrowserRouterProps> = () => {
         {connectionError && (
           <div>接続に失敗しました。ルームIDを確認してください。</div>
         )}
+        <Modal isClose={isClose} setMenuState={setMenuState}>
+          サンプル
+        </Modal>
+        <button onClick={() => setMenuState(!isClose)}>サンプルだよ開く</button>
       </div>
     </div>
   );
