@@ -72,11 +72,18 @@ const CameraTest: FC = () => {
 
     assertNonNull(mediaStream);
 
-    const videos = [...streams, mediaStream].map((stream) => {
+    const data = [...streams, mediaStream].map((stream) => {
       const video = document.createElement("video");
       video.autoplay = true;
       video.srcObject = stream;
-      return video;
+
+      const tmpCanvas = document.createElement("canvas");
+      tmpCanvas.width = width;
+      tmpCanvas.height = height;
+      const tmpCtx = tmpCanvas.getContext("2d");
+      assertNonNull(tmpCtx);
+
+      return { video, tmpCtx };
     });
 
     canvas.width = width;
@@ -86,9 +93,9 @@ const CameraTest: FC = () => {
 
     let requestId: number;
     const animate = () => {
-      videos.forEach((video) => {
-        ctx.drawImage(video, 0, 0, width, height);
-        const imageData = ctx.getImageData(0, 0, width, height);
+      data.forEach(({ video, tmpCtx }) => {
+        tmpCtx.drawImage(video, 0, 0, width, height);
+        const imageData = tmpCtx.getImageData(0, 0, width, height);
         const data = imageData.data;
         const nn = width * height * 4;
         for (let pi = 0; pi < nn; pi += 4) {
