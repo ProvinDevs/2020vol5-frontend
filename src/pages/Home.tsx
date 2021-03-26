@@ -10,7 +10,6 @@ import { assertNonNull } from "../utils/assert";
 import { ConnectionController } from "../lib/webrtc/connection";
 import Button from "../components/common/Button";
 import Input from "../components/common/Input";
-import Modal from "../components/common/Modal";
 import styles from "./Home.module.scss";
 
 declare global {
@@ -20,7 +19,6 @@ declare global {
 }
 
 const Home: FC<BrowserRouterProps> = () => {
-  const [isClose, setMenuState] = useState<boolean>(true);
   const [strRoomId, setStrRoomId] = useState("");
   const [connectionError, setConnectionError] = useState(false);
   const [connecting, setConnecting] = useState(false);
@@ -140,11 +138,7 @@ const Home: FC<BrowserRouterProps> = () => {
       <div className={styles["inner-wrapper"]}>
         <h1 className={styles["title"]}>撮影をはじめよう</h1>
 
-        <Button
-          onClick={handleCreateClick}
-          buttonStyle="square"
-          disabled={connecting}
-        >
+        <Button onClick={handleCreateClick} disabled={connecting}>
           {connecting ? "接続中です" : "撮影ルームを作成"}
         </Button>
 
@@ -156,17 +150,14 @@ const Home: FC<BrowserRouterProps> = () => {
           placeholder="撮影ルームの部屋番号を入力"
           className={styles["input"]}
         />
-        <Button onClick={handleJoinClick} buttonStyle="square">
+
+        <Button onClick={handleJoinClick}>
           {connecting ? "接続中です" : "撮影ルームに入る"}
         </Button>
 
         {connectionError && (
           <div>接続に失敗しました。ルームIDを確認してください。</div>
         )}
-        <Modal isClose={isClose} setMenuState={setMenuState}>
-          サンプル
-        </Modal>
-        <button onClick={() => setMenuState(!isClose)}>サンプルだよ開く</button>
       </div>
     </div>
   );

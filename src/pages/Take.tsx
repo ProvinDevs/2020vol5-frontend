@@ -6,9 +6,11 @@ import { useHistory } from "react-router-dom";
 import { useStore } from "../lib/webrtc/store";
 import { assertNonNull } from "../utils/assert";
 import { Connection } from "../lib/webrtc/connection";
+import Modal from "../components/common/Modal";
+import Button from "../components/common/Button";
+import styles from "./Take.module.scss";
 
 import CameraIcon from "../assets/camera.svg";
-import styles from "./Take.module.scss";
 
 const Take: FC<BrowserRouterProps> = () => {
   const {
@@ -16,7 +18,7 @@ const Take: FC<BrowserRouterProps> = () => {
     setStore,
   } = useStore();
   const history = useHistory();
-
+  const [isClose, setMenuState] = useState<boolean>(false);
   const [streams, setStreams] = useState<Array<MediaStream>>([]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -135,13 +137,26 @@ const Take: FC<BrowserRouterProps> = () => {
   }, [mediaStream, streams, canvasRef]);
 
   return (
-    <div className={styles["preview-container"]}>
-      <div className={styles["id"]}>ルームID: {roomId}</div>
-      <canvas ref={canvasRef} />
-      <button onClick={handleClick} className={styles["take-button"]}>
-        <img src={CameraIcon} className={styles["take-button-icon"]} />
-      </button>
-    </div>
+    <>
+      <Modal isClose={isClose} setMenuState={setMenuState}>
+        <p className={styles["text"]}>後ろに物がない場所でお撮りください</p>
+        <div>
+          <Button
+            className={styles["button"]}
+            onClick={() => setMenuState(!isClose)}
+          >
+            撮影を始める
+          </Button>
+        </div>
+      </Modal>
+      <div className={styles["preview-container"]}>
+        <div className={styles["id"]}>ルームID: {roomId}</div>
+        <canvas ref={canvasRef} />
+        <button onClick={handleClick} className={styles["take-button"]}>
+          <img src={CameraIcon} className={styles["take-button-icon"]} />
+        </button>
+      </div>
+    </>
   );
 };
 

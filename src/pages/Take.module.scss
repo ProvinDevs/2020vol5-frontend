@@ -1,3 +1,16 @@
+.text {
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.button {
+  $padding: 2rem;
+  padding-left: $padding;
+  padding-right: $padding;
+}
+
 .preview-container {
   position: relative;
   display: flex;
