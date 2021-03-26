@@ -12,6 +12,7 @@ dependencies:
 devDependencies:
   '@babel/core': 7.13.10
   '@babel/preset-env': 7.13.10_@babel+core@7.13.10
+  '@types/compression-webpack-plugin': 6.0.5
   '@types/copy-webpack-plugin': 6.4.0
   '@types/fibers': 3.1.0
   '@types/html-webpack-plugin': 3.2.4
@@ -27,6 +28,7 @@ devDependencies:
   autoprefixer: 10.2.5_postcss@8.2.8
   babel-loader: 8.2.2_836add2fe6ca273528ca0028dadff6ea
   clean-webpack-plugin: 3.0.0_webpack@5.26.0
+  compression-webpack-plugin: 7.1.2_webpack@5.26.0
   copy-webpack-plugin: 8.0.0_webpack@5.26.0
   cross-env: 7.0.3
   css-loader: 5.1.3_webpack@5.26.0
@@ -1150,6 +1152,12 @@ packages:
     dev: true
     resolution:
       integrity: sha512-ET0ldU/vpXecy5vO8JRIhtJWSrk1vzXdJcp3Bjf8bARZynl6vfkhEKY/A7njfNIRlmyTGuVFuqnD6I3tOGdXpQ==
+  /@types/compression-webpack-plugin/6.0.5:
+    dependencies:
+      '@types/webpack': 4.41.27
+    dev: true
+    resolution:
+      integrity: sha512-rSgj+OtTFYS0PfbtyyujPUdHHIyg/Kj0+gUcQn2pU/yZdu3egEdX4Vz0yYCOMI2F21IJjwbDtYb/KQg7tUfpwA==
   /@types/connect-history-api-fallback/1.3.3:
     dependencies:
       '@types/express-serve-static-core': 4.17.19
@@ -1273,6 +1281,10 @@ packages:
   /@types/node/14.14.34:
     resolution:
       integrity: sha512-dBPaxocOK6UVyvhbnpFIj2W+S+1cBTkHQbFQfeeJhoKFbzYcVUGHvddeWPSucKATb3F0+pgDq0i6ghEaZjsugA==
+  /@types/node/14.14.36:
+    dev: true
+    resolution:
+      integrity: sha512-kjivUwDJfIjngzbhooRnOLhGYz6oRFi+L+EpMjxroDYXwDw9lHrJJ43E+dJ6KAd3V3WxWAJ/qZE9XKYHhjPOFQ==
   /@types/offscreencanvas/2019.3.0:
     dev: false
     resolution:
@@ -1359,6 +1371,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-W+bw9ds02rAQaMvaLYxAbJ6cvguW/iJXNT6lTssS1ps6QdrMKttqEAMEG/b5CR8TZl3/L7/lH0ZV5nNR1LXikA==
+  /@types/tapable/1.0.7:
+    dev: true
+    resolution:
+      integrity: sha512-0VBprVqfgFD7Ehb2vd8Lh9TG3jP98gvr8rgehQqzztZNI7o8zS8Ad4jyZneKELphpuE212D8J70LnSNQSyO6bQ==
   /@types/uglify-js/3.13.0:
     dependencies:
       source-map: 0.6.1
@@ -1385,7 +1401,7 @@ packages:
       integrity: sha512-13w1VhaghN+G1rYjkBPgN/GFRoHd9uI2fwK9cSKvLutdmZ22L9iicFEvt69by40DP2I6uNcClaGTyPY6nYhIgQ==
   /@types/webpack-sources/2.1.0:
     dependencies:
-      '@types/node': 14.14.34
+      '@types/node': 14.14.36
       '@types/source-list-map': 0.1.2
       source-map: 0.7.3
     dev: true
@@ -1402,6 +1418,17 @@ packages:
     dev: true
     resolution:
       integrity: sha512-7ZyTfxjCRwexh+EJFwRUM+CDB2XvgHl4vfuqf1ZKrgGvcS5BrNvPQqJh3tsZ0P6h6Aa1qClVHaJZszLPzpqHeA==
+  /@types/webpack/4.41.27:
+    dependencies:
+      '@types/anymatch': 1.3.1
+      '@types/node': 14.14.36
+      '@types/tapable': 1.0.7
+      '@types/uglify-js': 3.13.0
+      '@types/webpack-sources': 2.1.0
+      source-map: 0.6.1
+    dev: true
+    resolution:
+      integrity: sha512-wK/oi5gcHi72VMTbOaQ70VcDxSQ1uX8S2tukBK9ARuGXrYM/+u4ou73roc7trXDNmCxCoerE8zruQqX/wuHszA==
   /@typescript-eslint/eslint-plugin/4.18.0_ef0f217f6395606fd8bbe7b0291eff7e:
     dependencies:
       '@typescript-eslint/experimental-utils': 4.18.0_eslint@7.22.0+typescript@4.2.3
@@ -2469,6 +2496,18 @@ packages:
       node: '>= 0.6'
     resolution:
       integrity: sha512-AF3r7P5dWxL8MxyITRMlORQNaOA2IkAFaTr4k7BUumjPtRpGDTZpl0Pb1XCO6JeDCBdp126Cgs9sMxqSjgYyRg==
+  /compression-webpack-plugin/7.1.2_webpack@5.26.0:
+    dependencies:
+      schema-utils: 3.0.0
+      serialize-javascript: 5.0.1
+      webpack: 5.26.0_webpack-cli@4.5.0
+    dev: true
+    engines:
+      node: '>= 10.13.0'
+    peerDependencies:
+      webpack: ^5.1.0
+    resolution:
+      integrity: sha512-9DKNW6ILLjx+bNBoviHDgLx6swBhWWH9ApClC9sTH2NoFfQM47BapQfovCm9zjD9v1uZwInF5a925FB9ErGQeQ==
   /compression/1.7.4:
     dependencies:
       accepts: 1.3.7
@@ -7994,6 +8033,7 @@ specifiers:
   '@improbable-eng/grpc-web': ^0.14.0
   '@tensorflow-models/body-pix': ^2.1.0
   '@tensorflow/tfjs': ^3.3.0
+  '@types/compression-webpack-plugin': ^6.0.5
   '@types/copy-webpack-plugin': ^6.4.0
   '@types/fibers': ^3.1.0
   '@types/html-webpack-plugin': ^3.2.4
@@ -8009,6 +8049,7 @@ specifiers:
   autoprefixer: ^10.2.5
   babel-loader: ^8.2.2
   clean-webpack-plugin: ^3.0.0
+  compression-webpack-plugin: ^7.1.2
   copy-webpack-plugin: ^8.0.0
   core-js: ^3.9.1
   cross-env: ^7.0.3
