@@ -94,7 +94,13 @@ const Home: FC<BrowserRouterProps> = () => {
     );
     connectionController.addFromId(joinedUserIds.filter((id) => id !== myId));
 
-    setStore({ mediaStream, signallingStream, myId, connectionController });
+    setStore({
+      mediaStream,
+      signallingStream,
+      myId,
+      roomId,
+      connectionController,
+    });
 
     history.push("/take");
   };

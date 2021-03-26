@@ -6,11 +6,14 @@ import { useEffect, useRef, useState } from "react";
 import { useStore } from "../lib/webrtc/store";
 import { assertNonNull } from "../utils/assert";
 import { Connection } from "../lib/webrtc/connection";
+import { useHistory } from "react-router-dom";
 
 const Take: FC<BrowserRouterProps> = () => {
   const {
-    store: { mediaStream, connectionController },
+    store: { mediaStream, connectionController, roomId },
+    setStore,
   } = useStore();
+  const history = useHistory();
 
   const [streams, setStreams] = useState<Array<MediaStream>>([]);
 
@@ -89,9 +92,21 @@ const Take: FC<BrowserRouterProps> = () => {
     };
   }, [mediaStream, streams, canvasRef]);
 
+  const handleClick = () => {
+    const canvas = canvasRef.current;
+    assertNonNull(canvas);
+    canvas.toBlob((blob) => {
+      const imageUrl = URL.createObjectURL(blob);
+      setStore({ takenPhotoUrl: imageUrl });
+      history.push("/edit");
+    });
+  };
+
   return (
     <div>
+      <div>ルームID: {roomId}</div>
       <canvas ref={canvasRef} />
+      <button onClick={handleClick}>写真を取る</button>
     </div>
   );
 };
