@@ -1,11 +1,14 @@
 import { SignallingStream } from "../grpc";
 import { Emitter } from "../../utils/emitter";
+import { assertNonNull } from "../../utils/assert";
 
 type ConnectionEventMap = {
   establishConnection: (connection: Connection) => void;
+  stampMessage: (message: string) => void;
 };
 export class Connection extends Emitter<ConnectionEventMap> {
   mediaStream?: MediaStream;
+  stampDataChannel?: RTCDataChannel;
 
   private peer: RTCPeerConnection;
   private iceCandidateBuffer: Array<RTCIceCandidateInit> = [];
@@ -84,7 +87,20 @@ export class Connection extends Emitter<ConnectionEventMap> {
     this.createOffer();
   }
 
-  async setOffer(offer: RTCSessionDescriptionInit): Promise<void> {
+  private async setOffer(offer: RTCSessionDescriptionInit): Promise<void> {
+    const handleDataChannel = (event: RTCDataChannelEvent) => {
+      switch (event.channel.label) {
+        case "stamp": {
+          this.stampDataChannel = event.channel;
+          this.listenStampMessage();
+          break;
+        }
+      }
+      if (this.stampDataChannel !== undefined) {
+        this.peer.removeEventListener("datachannel", handleDataChannel);
+      }
+    };
+    this.peer.addEventListener("datachannel", handleDataChannel);
     await this.peer.setRemoteDescription(offer);
     const answer = await this.peer.createAnswer();
     await this.peer.setLocalDescription(answer);
@@ -93,8 +109,13 @@ export class Connection extends Emitter<ConnectionEventMap> {
       JSON.stringify(answer),
     );
   }
-  createOffer(): void {
+  private createOffer(): void {
     (async () => {
+      this.stampDataChannel = this.peer.createDataChannel("stamp", {
+        ordered: false,
+        maxPacketLifeTime: 5000,
+      });
+      this.listenStampMessage();
       const offer = await this.peer.createOffer();
       await this.peer.setLocalDescription(offer);
       await this._signallingStream.sendSdpMessage(
@@ -112,11 +133,24 @@ export class Connection extends Emitter<ConnectionEventMap> {
       this.peer.setRemoteDescription(description).catch(console.error);
     });
   }
+
+  sendStampMessage(message: string): void {
+    assertNonNull(this.stampDataChannel);
+    this.stampDataChannel.send(message);
+  }
+
+  listenStampMessage(): void {
+    assertNonNull(this.stampDataChannel);
+    this.stampDataChannel.addEventListener("message", ({ data }) =>
+      this.emit("stampMessage", data),
+    );
+  }
 }
 
 type ConnectionControllerEventMap = {
   addConnection: (connection: Connection) => void;
   establishConnection: (connection: Connection) => void;
+  stampMessage: (message: string) => void;
 };
 export class ConnectionController extends Emitter<ConnectionControllerEventMap> {
   connections: Array<Connection> = [];
@@ -141,6 +175,13 @@ export class ConnectionController extends Emitter<ConnectionControllerEventMap> 
     });
   }
 
+  sendStampMessage(message: string): void {
+    console.info(message);
+    this.connections.forEach((connection) =>
+      connection.sendStampMessage(message),
+    );
+  }
+
   addFromId(ids: Array<string>): void {
     const connections = ids.map((id) => this.createConnection(id));
     this.connections.push(...connections);
@@ -161,6 +202,9 @@ export class ConnectionController extends Emitter<ConnectionControllerEventMap> 
     connection.on("establishConnection", (connection) =>
       this.emit("establishConnection", connection),
     );
+    connection.on("stampMessage", (message) => {
+      this.emit("stampMessage", message);
+    });
     return connection;
   }
 }
