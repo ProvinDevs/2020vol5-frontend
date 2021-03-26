@@ -5,7 +5,6 @@ import * as bodyPix from "@tensorflow-models/body-pix";
 import "./Pic.scss";
 
 const Pic: FC = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [model, setModel] = useState<bodyPix.BodyPix>();
   const [camera, setCamera] = useState<MediaStream>();
 
@@ -30,8 +29,10 @@ const Pic: FC = () => {
   }, []);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (canvas == null || model == undefined || camera == undefined) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = 960;
+    canvas.height = 540;
+    if (model == undefined || camera == undefined) return;
 
     const video = document.createElement("video");
     video.autoplay = true;
@@ -67,12 +68,14 @@ const Pic: FC = () => {
       requestId = requestAnimationFrame(animate);
     };
     animate();
+    //tsの型定義をいれる
+    //const stream = canvas.cuptureStream();
     return () => {
       camera.getTracks().forEach((track) => track.stop());
       cancelAnimationFrame(requestId);
     };
-  }, [canvasRef, model, camera]);
-  return <canvas className="canvas" ref={canvasRef} />;
+  }, [model, camera]);
+  return <div />;
 };
 
 export default Pic;
