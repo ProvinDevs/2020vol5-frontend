@@ -5,13 +5,30 @@ import { useEffect, useRef, useState } from "react";
 import { useStore } from "../lib/webrtc/store";
 import { assertNonNull } from "../utils/assert";
 import { Connection } from "../lib/webrtc/connection";
+import Modal from "../components/common/Modal";
+import Button from "../components/common/Button";
+import styles from "./Take.module.scss";
 
 const Take: FC<BrowserRouterProps> = () => {
+  const [isClose, setMenuState] = useState<boolean>(false);
   return (
-    <div>
-      <h1>This is Take page.</h1>
-      <CameraTest />
-    </div>
+    <>
+      <Modal isClose={isClose} setMenuState={setMenuState}>
+        <p className={styles["text"]}>後ろに物がない場所でお撮りください</p>
+        <div>
+          <Button
+            className={styles["button"]}
+            onClick={() => setMenuState(!isClose)}
+          >
+            撮影を始める
+          </Button>
+        </div>
+      </Modal>
+      <div>
+        <h1>This is Take page.</h1>
+        <CameraTest />
+      </div>
+    </>
   );
 };
 

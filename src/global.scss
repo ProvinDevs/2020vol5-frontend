@@ -4,11 +4,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial,
+    "Yu Gothic", YuGothic, Meiryo, "M+ 1p", sans-serif;
 }
 
 html {
-  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial,
-    "Yu Gothic", YuGothic, Meiryo, "M+ 1p", sans-serif;
   color: use.color(black);
   font-size: 16px;
 }
