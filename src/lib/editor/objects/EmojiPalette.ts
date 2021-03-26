@@ -44,7 +44,7 @@ export class EmojiPalette implements Drawable {
 
     const vertexes: N3N2 = [
       // 下
-      [this.bottomPoint.x, this.bottomPoint.y - 50],
+      [this.bottomPoint.x, this.bottomPoint.y - this.triangleHeight / 2.5],
 
       // 左上
       [
