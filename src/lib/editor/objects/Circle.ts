@@ -28,11 +28,13 @@ export class Circle implements Drawable {
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = "#333";
     ctx.beginPath();
-
     ctx.arc(this.center.x, this.center.y, this.radius, 0, 2 * Math.PI);
     ctx.fillStyle = this.color;
     ctx.fill();
+    ctx.shadowColor = "#0000";
 
     if (this.foregroundImage && this.foregroundImage.complete) {
       const innerRadius = this.radius * (this.foregroundSizeMultiplier ?? 1);
