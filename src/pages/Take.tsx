@@ -8,18 +8,6 @@ import { assertNonNull } from "../utils/assert";
 import { Connection } from "../lib/webrtc/connection";
 
 const Take: FC<BrowserRouterProps> = () => {
-  return (
-    <div>
-      <h1>This is Take page.</h1>
-      <CameraTest />
-    </div>
-  );
-};
-
-export default Take;
-
-// テスト用
-const CameraTest: FC = () => {
   const {
     store: { mediaStream, connectionController },
   } = useStore();
@@ -27,14 +15,6 @@ const CameraTest: FC = () => {
   const [streams, setStreams] = useState<Array<MediaStream>>([]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const myVideoRef = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    if (myVideoRef.current === null) return;
-    assertNonNull(mediaStream);
-    console.log(mediaStream);
-    myVideoRef.current.srcObject = mediaStream;
-  }, [myVideoRef]);
 
   useEffect(() => {
     if (connectionController === undefined) return;
@@ -111,13 +91,9 @@ const CameraTest: FC = () => {
 
   return (
     <div>
-      <div>
-        <span>自分の映像</span>
-        <video autoPlay muted ref={myVideoRef} />
-      </div>
-      <div>
-        <canvas ref={canvasRef} />
-      </div>
+      <canvas ref={canvasRef} />
     </div>
   );
 };
+
+export default Take;
