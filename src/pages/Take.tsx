@@ -1,12 +1,14 @@
 import type { FC } from "react";
-import type { BrowserRouterProps } from "react-router-dom";
-
 import { useEffect, useRef, useState } from "react";
+import type { BrowserRouterProps } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 import { useStore } from "../lib/webrtc/store";
 import { assertNonNull } from "../utils/assert";
 import { Connection } from "../lib/webrtc/connection";
-import { useHistory } from "react-router-dom";
+
+import CameraIcon from "../assets/camera.svg";
+import styles from "./Take.module.scss";
 
 const Take: FC<BrowserRouterProps> = () => {
   const {
@@ -133,10 +135,12 @@ const Take: FC<BrowserRouterProps> = () => {
   }, [mediaStream, streams, canvasRef]);
 
   return (
-    <div>
-      <div>ルームID: {roomId}</div>
+    <div className={styles["preview-container"]}>
+      <div className={styles["id"]}>ルームID: {roomId}</div>
       <canvas ref={canvasRef} />
-      <button onClick={handleClick}>写真を取る</button>
+      <button onClick={handleClick} className={styles["take-button"]}>
+        <img src={CameraIcon} className={styles["take-button-icon"]} />
+      </button>
     </div>
   );
 };
