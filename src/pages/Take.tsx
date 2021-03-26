@@ -22,7 +22,23 @@ const Take: FC<BrowserRouterProps> = () => {
   const handleTake = () => {
     const canvas = canvasRef.current;
     assertNonNull(canvas);
-    canvas.toBlob((blob) => {
+    const outputCanvas = document.createElement("canvas");
+    outputCanvas.width = canvas.width;
+    outputCanvas.height = canvas.height;
+    const ctx = outputCanvas.getContext("2d");
+    assertNonNull(ctx);
+    ctx.drawImage(
+      canvas,
+      5,
+      5,
+      canvas.width - 5 * 2,
+      canvas.height - 5 * 2,
+      0,
+      0,
+      outputCanvas.width,
+      outputCanvas.height,
+    );
+    outputCanvas.toBlob((blob) => {
       const imageUrl = URL.createObjectURL(blob);
       setStore({ takenPhotoUrl: imageUrl });
       history.push("/edit");
