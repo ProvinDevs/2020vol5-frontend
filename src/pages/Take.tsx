@@ -19,6 +19,21 @@ const Take: FC<BrowserRouterProps> = () => {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  const handleTake = () => {
+    const canvas = canvasRef.current;
+    assertNonNull(canvas);
+    canvas.toBlob((blob) => {
+      const imageUrl = URL.createObjectURL(blob);
+      setStore({ takenPhotoUrl: imageUrl });
+      history.push("/edit");
+    });
+  };
+  const handleClick = () => {
+    handleTake();
+    assertNonNull(connectionController);
+    connectionController.sendTakeMessage("take");
+  };
+
   useEffect(() => {
     if (connectionController === undefined) return;
 
@@ -27,14 +42,20 @@ const Take: FC<BrowserRouterProps> = () => {
       setStreams((prev) => [...prev, mediaStream]);
     };
 
+    const handleTakeMessage = () => {
+      handleTake();
+    };
+
     connectionController.on("establishConnection", handleEstablishConnection);
+    connectionController.on("takeMessage", handleTakeMessage);
     return () => {
       connectionController.off(
         "establishConnection",
         handleEstablishConnection,
       );
+      connectionController.off("takeMessage", handleTakeMessage);
     };
-  }, [connectionController]);
+  }, [connectionController, handleTake]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -94,16 +115,6 @@ const Take: FC<BrowserRouterProps> = () => {
       cancelAnimationFrame(requestId);
     };
   }, [mediaStream, streams, canvasRef]);
-
-  const handleClick = () => {
-    const canvas = canvasRef.current;
-    assertNonNull(canvas);
-    canvas.toBlob((blob) => {
-      const imageUrl = URL.createObjectURL(blob);
-      setStore({ takenPhotoUrl: imageUrl });
-      history.push("/edit");
-    });
-  };
 
   return (
     <div>
