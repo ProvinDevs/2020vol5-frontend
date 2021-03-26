@@ -1,12 +1,15 @@
 import type { FC } from "react";
-import type { BrowserRouterProps } from "react-router-dom";
 import { useState } from "react";
+import type { BrowserRouterProps } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 
 import { useStore } from "../lib/webrtc/store";
 import { GrpcApiClient } from "../lib/grpc";
 import { assertNonNull } from "../utils/assert";
 import { ConnectionController } from "../lib/webrtc/connection";
+import Button from "../components/common/Button";
+import Input from "../components/common/Input";
+import styles from "./Home.module.scss";
 
 const Home: FC<BrowserRouterProps> = () => {
   const [strRoomId, setStrRoomId] = useState("");
@@ -74,17 +77,22 @@ const Home: FC<BrowserRouterProps> = () => {
   };
 
   return (
-    <div>
-      <div>
-        <button onClick={handleCreateClick}>新規ルーム作成</button>
-      </div>
-      <div>
-        <span>ルームID</span>
-        <input
+    <div className={styles["wrapper"]}>
+      <div className={styles["inner-wrapper"]}>
+        <h1 className={styles["title"]}>撮影をはじめよう</h1>
+        <Button onClick={handleCreateClick} buttonStyle="square">
+          撮影ルームを作成
+        </Button>
+        <span className={styles["or"]}>または</span>
+        <Input
           value={strRoomId}
           onChange={({ target }) => setStrRoomId(target.value)}
+          placeholder="撮影ルームの部屋番号を入力"
+          className={styles["input"]}
         />
-        <button onClick={handleJoinClick}>参加</button>
+        <Button onClick={handleJoinClick} buttonStyle="square">
+          撮影ルームに入る
+        </Button>
         {connectionError && (
           <div>接続に失敗しました。ルームIDを確認してください。</div>
         )}

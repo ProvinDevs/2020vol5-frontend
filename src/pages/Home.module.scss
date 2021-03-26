@@ -1,0 +1,28 @@
+@use "../use";
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.inner-wrapper {
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 2.2rem;
+  padding-bottom: 4rem;
+}
+
+.or {
+  display: block;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.input {
+  margin-bottom: 1.2rem;
+}
