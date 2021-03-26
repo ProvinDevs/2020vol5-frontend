@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import "@tensorflow/tfjs";
 import * as bodyPix from "@tensorflow-models/body-pix";
 import "./Pic.scss";
@@ -68,7 +68,7 @@ const Pic: FC = () => {
       requestId = requestAnimationFrame(animate);
     };
     animate();
-    //tsの型定義をいれる
+    //tsの型定義をいれてから
     //const stream = canvas.cuptureStream();
     return () => {
       camera.getTracks().forEach((track) => track.stop());

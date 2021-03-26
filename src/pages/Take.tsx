@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import type { BrowserRouterProps } from "react-router-dom";
-import Pic from "../components/Pic";
+//mport Pic from "../components/Pic";
 import Chromakey from "../components/Chromakey";
 
 import React, { useState, useEffect } from "react";
