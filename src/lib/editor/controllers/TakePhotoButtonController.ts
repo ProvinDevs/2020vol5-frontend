@@ -70,7 +70,7 @@ export class TakePhotoButtonController {
       });
 
       const link = document.createElement("a");
-      link.download = "photo.png"; // downloaded filename
+      link.download = "photo.jpeg"; // downloaded filename
       link.href = URL.createObjectURL(photo);
 
       document.body.appendChild(link);
