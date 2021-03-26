@@ -176,7 +176,6 @@ export class ConnectionController extends Emitter<ConnectionControllerEventMap> 
   }
 
   sendStampMessage(message: string): void {
-    console.info(message);
     this.connections.forEach((connection) =>
       connection.sendStampMessage(message),
     );
