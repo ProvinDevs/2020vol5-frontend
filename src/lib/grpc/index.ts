@@ -7,6 +7,7 @@ import {
   Room as PbRoom,
   RoomInfoRequest,
   SelfIntroduceMessage,
+  SelfIntroduceResult,
   SendIceCandidateMessage,
   SendSdpMessage,
   SendSignallingMessage,
@@ -19,7 +20,7 @@ import {
 
 export interface ApiClient {
   createNewRoom(): Promise<Room>;
-  joinRoom(roomId: number): Promise<SignallingStream>;
+  joinRoom(roomId: number): Promise<SignallingStream | null>;
 }
 
 export interface SignallingStream {
@@ -84,7 +85,7 @@ export class GrpcApiClient implements ApiClient {
     });
   }
 
-  async joinRoom(roomId: number): Promise<SignallingStream> {
+  async joinRoom(roomId: number): Promise<SignallingStream | null> {
     const client = grpc.client<
       SendSignallingMessage,
       RecvSignallingMessage,
@@ -94,15 +95,19 @@ export class GrpcApiClient implements ApiClient {
       transport: grpc.WebsocketTransport(),
     });
 
+    const stream = await GrpcSignallingStream.create(client, this.myId, roomId);
+
     if (this.isJoinedToRoom) {
       throw new Error(
         "unimplemented: rejoining to room is currently not supported.",
       );
     }
 
-    this.isJoinedToRoom = true;
+    if (stream != null) {
+      this.isJoinedToRoom = true;
+    }
 
-    return new GrpcSignallingStream(client, this.myId, roomId);
+    return stream;
   }
 }
 
@@ -111,20 +116,32 @@ type EmitterT = {
   iceCandidate: (i: IceCandidate) => void;
 
   // internal use
+  selfIntroResult: (r: SelfIntroduceResult) => void;
   roomInfo: (r: PbRoom) => void;
 };
 
 export class GrpcSignallingStream implements SignallingStream {
   private emitter: Emitter<EmitterT>;
 
-  constructor(
+  private constructor(
     private client: grpc.Client<SendSignallingMessage, RecvSignallingMessage>,
     private readonly myId: string,
-    roomId: number,
   ) {
     this.emitter = createNanoEvents();
 
     client.start();
+
+    client.onMessage((m) => {
+      this.onClientMessage(m);
+    });
+  }
+
+  static create(
+    client: grpc.Client<SendSignallingMessage, RecvSignallingMessage>,
+    myId: string,
+    roomId: number,
+  ): Promise<GrpcSignallingStream | null> {
+    const instance = new GrpcSignallingStream(client, myId);
 
     const selfIntro = new SelfIntroduceMessage();
     selfIntro.setMyId(myId);
@@ -133,11 +150,22 @@ export class GrpcSignallingStream implements SignallingStream {
     const req = new SendSignallingMessage();
     req.setSelfIntro(selfIntro);
 
+    const promise = new Promise<GrpcSignallingStream | null>((ok) => {
+      const dispose = instance.emitter.on("selfIntroResult", (result) => {
+        dispose();
+
+        if (!result.getOk()) {
+          console.error("failed to self-introduce:", result.getErrorMessage());
+          ok(null);
+        }
+
+        ok(instance);
+      });
+    });
+
     client.send(req);
 
-    client.onMessage((m) => {
-      this.onClientMessage(m);
-    });
+    return promise;
   }
 
   getMyId(): string {
@@ -147,7 +175,7 @@ export class GrpcSignallingStream implements SignallingStream {
   private async onClientMessage(msg: RecvSignallingMessage): Promise<void> {
     /* eslint-disable @typescript-eslint/no-non-null-assertion */
     if (msg.hasRoomInfoResponse()) {
-      console.trace("got RoomInfoResponse");
+      console.debug("got RoomInfoResponse");
       this.emitter.emit("roomInfo", msg.getRoomInfoResponse()!);
 
       return;
@@ -161,7 +189,9 @@ export class GrpcSignallingStream implements SignallingStream {
         toId: origin!.getToId(),
       };
 
+      console.debug("SdpMessage has came", converted);
       this.emitter.emit("sdp", converted);
+
       return;
     }
 
@@ -173,7 +203,16 @@ export class GrpcSignallingStream implements SignallingStream {
         toId: origin!.getToId(),
       };
 
+      console.debug("IceMessage has came", converted);
       this.emitter.emit("iceCandidate", converted);
+
+      return;
+    }
+
+    if (msg.hasSelfIntroResult()) {
+      console.debug("SelfIntroResult has came");
+      this.emitter.emit("selfIntroResult", msg.getSelfIntroResult()!);
+
       return;
     }
   }
@@ -192,7 +231,7 @@ export class GrpcSignallingStream implements SignallingStream {
 
       this.client.send(request);
 
-      console.trace("sent RoomInfoRequest");
+      console.debug("sent RoomInfoRequest");
 
       const dispose = this.emitter.on("roomInfo", (room) => {
         dispose();
