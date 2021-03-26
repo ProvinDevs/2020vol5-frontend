@@ -2,6 +2,7 @@ import type { FC } from "react";
 import { useEffect, useState } from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 
+import { StoreProvider, useStoreReducer } from "./lib/webrtc/store";
 import { ApiClient, GrpcApiClient, Room, SignallingStream } from "./lib/grpc";
 
 import Home from "./pages/Home";
@@ -10,15 +11,19 @@ import Edit from "./pages/Edit";
 import Finish from "./pages/Finish";
 
 const App: FC = () => {
+  const store = useStoreReducer();
+
   return (
-    <BrowserRouter>
-      <Switch>
-        <Route exact path="/" component={Home} />
-        <Route exact path="/take" component={Take} />
-        <Route exact path="/edit" component={Edit} />
-        <Route exact path="/finish" component={Finish} />
-      </Switch>
-    </BrowserRouter>
+    <StoreProvider value={store}>
+      <BrowserRouter>
+        <Switch>
+          <Route exact path="/" component={Home} />
+          <Route exact path="/take" component={Take} />
+          <Route exact path="/edit" component={Edit} />
+          <Route exact path="/finish" component={Finish} />
+        </Switch>
+      </BrowserRouter>
+    </StoreProvider>
   );
 };
 
@@ -77,6 +82,7 @@ const StreamController: FC<ClientOnlyProps> = ({ client }) => {
   const [roomIdInput, setRoomIdInput] = useState<number>(0);
   const [stream, setStream] = useState<SignallingStream | null>(null);
   const [messages, setMessages] = useState<Array<string>>([]);
+  const [connectionError, setConnectionError] = useState<boolean>(false);
 
   // (to_id, content)
   const [sdpInput, setSdpInput] = useState<[string, string]>(["", ""]);
@@ -87,9 +93,15 @@ const StreamController: FC<ClientOnlyProps> = ({ client }) => {
   const onJoinButtonClick = async () => {
     const stream = await client.joinRoom(roomIdInput);
 
+    if (stream == null) {
+      setConnectionError(true);
+      return;
+    }
+
     stream.on("sdp", (s) => setMessages((m) => [...m, toJson(s)]));
     stream.on("iceCandidate", (i) => setMessages((m) => [...m, toJson(i)]));
 
+    setConnectionError(false);
     setStream(stream);
   };
 
@@ -111,6 +123,8 @@ const StreamController: FC<ClientOnlyProps> = ({ client }) => {
             onChange={(x) => setRoomIdInput(x.target.valueAsNumber)}
           />
           <button onClick={onJoinButtonClick}>join</button>
+
+          {connectionError && <h3>Connection error. Check room id.</h3>}
         </>
       )}
 

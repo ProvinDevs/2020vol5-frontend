@@ -5,9 +5,11 @@ import { CleanWebpackPlugin } from "clean-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import CopyWebpackPlugin from "copy-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import CompressionPlugin from "compression-webpack-plugin";
 import sass from "sass";
 import fibers from "fibers";
 import { resolve } from "path";
+import "dotenv/config";
 
 declare module "webpack" {
   interface Configuration {
@@ -106,6 +108,11 @@ const config: Configuration = {
     ],
   },
   plugins: [
+    new CompressionPlugin({
+      test: /\.(js|css|html|svg)$/,
+      filename: "[path][base].br",
+      algorithm: "brotliCompress",
+    }),
     new CleanWebpackPlugin(),
     new EnvironmentPlugin(
       Object.keys(process.env).filter(

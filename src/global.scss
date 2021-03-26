@@ -1,4 +1,19 @@
+@use "./use";
+
 * {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial,
+    "Yu Gothic", YuGothic, Meiryo, "M+ 1p", sans-serif;
+  color: use.color(black);
+  font-size: 16px;
+}
+
+a {
+  text-decoration: none;
+  color: use.color(black);
 }
