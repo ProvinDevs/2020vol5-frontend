@@ -57,6 +57,8 @@ jobs:
           pnpm install
       - name: Run build
         run: pnpm build
+        env:
+          REACT_APP_API_URL: ${{ secrets.API_URL }}
 
       - name: Upload dist
         uses: actions/upload-artifact@v2
