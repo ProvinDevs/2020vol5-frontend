@@ -83,5 +83,5 @@ jobs:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
       - run: |
-          gsutil rm -r gs://provindevs-frontend/*
+          gsutil rm -r gs://provindevs-frontend/* || true
           gsutil cp -r dist/* gs://provindevs-frontend/
