@@ -35,7 +35,7 @@ export class SelectBox implements Drawable {
 
     // 枠の描画
     ctx.beginPath();
-    ctx.lineWidth = 5;
+    ctx.lineWidth = 2;
     ctx.strokeStyle = "black";
     vertex.forEach((point) => ctx.lineTo(...point.toArray()));
     ctx.closePath();
@@ -44,7 +44,7 @@ export class SelectBox implements Drawable {
     // 各頂点のリサイズハンドルの描画
     vertex.forEach((point) => {
       ctx.beginPath();
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 1;
       ctx.strokeStyle = "black";
       ctx.arc(...point.toArray(), this.handleSize, 0, 2 * Math.PI);
       ctx.fillStyle = "white";
