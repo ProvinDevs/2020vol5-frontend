@@ -1,21 +1,23 @@
 import type { FC } from "react";
 import { useRef, useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
 
 import { Scene } from "../lib/editor/Scene";
+import { useStore } from "../lib/webrtc/store";
+import { assertNonNull } from "../utils/assert";
+import { StampFactory } from "../lib/editor/factory/StampFactory";
+import { MovableController } from "../lib/editor/controllers/MovableController";
+import { HomeButtonController } from "../lib/editor/controllers/HomeButtonController";
+import { EmojiPaletteController } from "../lib/editor/controllers/EmojiPaletteController";
+import { TakePhotoButtonController } from "../lib/editor/controllers/TakePhotoButtonController";
 import {
   Background,
   Movable,
   Stamp,
   SerializableStamp,
 } from "../lib/editor/objects";
-import { MovableController } from "../lib/editor/controllers/MovableController";
-import { StampFactory } from "../lib/editor/factory/StampFactory";
-import { useStore } from "../lib/webrtc/store";
-import { assertNonNull } from "../utils/assert";
 
 import styles from "./Editor.module.scss";
-import { EmojiPaletteController } from "../lib/editor/controllers/EmojiPaletteController";
-import { TakePhotoButtonController } from "../lib/editor/controllers/TakePhotoButtonController";
 
 type Message = {
   type: "add" | "change" | "remove";
@@ -25,12 +27,14 @@ type Message = {
 type Props = {
   backgroundImagePath: string;
 };
+
 const Editor: FC<Props> = ({ backgroundImagePath }) => {
   const {
     store: { connectionController },
   } = useStore();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const history = useHistory();
   const [
     movableController,
     setMovableController,
@@ -110,15 +114,14 @@ const Editor: FC<Props> = ({ backgroundImagePath }) => {
     const stampController = new MovableController(canvas);
     scene.add(stampController.movables);
     scene.add(stampController.selectBox);
-
     const emojiPalette = new EmojiPaletteController(
       canvas,
       stampFactory,
       stampController,
     );
-
     scene.add(emojiPalette.objects);
-
+    const homeButton = new HomeButtonController(canvas, history);
+    scene.add(homeButton.objects);
     const takePhotoButton = new TakePhotoButtonController(
       canvas,
       background,
