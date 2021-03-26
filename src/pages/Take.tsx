@@ -66,7 +66,10 @@ const Take: FC<BrowserRouterProps> = () => {
 
     let requestId: number;
     const animate = () => {
-      ctx.clearRect(0, 0, width, height);
+      ctx.beginPath();
+      ctx.rect(0, 0, width, height);
+      ctx.fillStyle = "white";
+      ctx.fill();
       data.forEach(({ video, tmpCtx }) => {
         tmpCtx.drawImage(video, 0, 0, width, height);
         const imageData = tmpCtx.getImageData(0, 0, width, height);
