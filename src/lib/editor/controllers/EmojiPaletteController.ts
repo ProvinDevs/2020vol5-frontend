@@ -29,7 +29,7 @@ export class EmojiPaletteController {
 
   private onResize = (): void => {
     const radius = Math.min(this.canvas.width, this.canvas.height) / 16;
-    const buttonX = this.canvas.width * 0.33;
+    const buttonX = this.canvas.width * 0.44;
     const buttonY = this.canvas.height * 0.9;
 
     this.objects.remove(this.button!);
