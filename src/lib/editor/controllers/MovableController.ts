@@ -41,6 +41,9 @@ export class MovableController extends Emitter<EventMap> {
     this.movables.remove(obj);
     this.emit("remove", obj);
   }
+  silentAdd(obj: Movable): void {
+    this.movables.add(obj);
+  }
 
   private getClickPoint(event: MouseEvent): Vector2 {
     const rect = this.canvas.getBoundingClientRect();

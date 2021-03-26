@@ -1,0 +1,20 @@
+@use "../../use";
+
+.input {
+  @include use.radius;
+  @include use.transition;
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1rem;
+  border: use.solid-border();
+  color: use.color(black);
+
+  &:focus {
+    outline: none;
+    border: use.solid-border($color: use.color(primary));
+  }
+
+  &::placeholder {
+    color: use.color(grey2);
+  }
+}
