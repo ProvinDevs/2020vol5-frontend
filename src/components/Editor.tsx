@@ -15,6 +15,7 @@ import { assertNonNull } from "../utils/assert";
 
 import styles from "./Editor.module.scss";
 import { EmojiPaletteController } from "../lib/editor/controllers/EmojiPaletteController";
+import { TakePhotoButtonController } from "../lib/editor/controllers/TakePhotoButtonController";
 
 type Message = {
   type: "add" | "change" | "remove";
@@ -117,6 +118,13 @@ const Editor: FC<Props> = ({ backgroundImagePath }) => {
     );
 
     scene.add(emojiPalette.objects);
+
+    const takePhotoButton = new TakePhotoButtonController(
+      canvas,
+      background,
+      stampController,
+    );
+    scene.add(takePhotoButton.objects);
 
     stampController.on("add", console.log);
     stampController.on("change", console.log);
