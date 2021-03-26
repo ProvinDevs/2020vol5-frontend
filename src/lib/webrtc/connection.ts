@@ -5,10 +5,12 @@ import { assertNonNull } from "../../utils/assert";
 type ConnectionEventMap = {
   establishConnection: (connection: Connection) => void;
   stampMessage: (message: string) => void;
+  takeMessage: (message: string) => void;
 };
 export class Connection extends Emitter<ConnectionEventMap> {
   mediaStream?: MediaStream;
   stampDataChannel?: RTCDataChannel;
+  takeDataChannel?: RTCDataChannel;
 
   private peer: RTCPeerConnection;
   private iceCandidateBuffer: Array<RTCIceCandidateInit> = [];
@@ -95,8 +97,16 @@ export class Connection extends Emitter<ConnectionEventMap> {
           this.listenStampMessage();
           break;
         }
+        case "take": {
+          this.takeDataChannel = event.channel;
+          this.listenTakeMessage();
+          break;
+        }
       }
-      if (this.stampDataChannel !== undefined) {
+      if (
+        this.stampDataChannel !== undefined &&
+        this.takeDataChannel !== undefined
+      ) {
         this.peer.removeEventListener("datachannel", handleDataChannel);
       }
     };
@@ -115,7 +125,12 @@ export class Connection extends Emitter<ConnectionEventMap> {
         ordered: false,
         maxPacketLifeTime: 5000,
       });
+      this.takeDataChannel = this.peer.createDataChannel("take", {
+        ordered: false,
+        maxPacketLifeTime: 5000,
+      });
       this.listenStampMessage();
+      this.listenTakeMessage();
       const offer = await this.peer.createOffer();
       await this.peer.setLocalDescription(offer);
       await this._signallingStream.sendSdpMessage(
@@ -138,11 +153,21 @@ export class Connection extends Emitter<ConnectionEventMap> {
     assertNonNull(this.stampDataChannel);
     this.stampDataChannel.send(message);
   }
+  sendTakeMessage(message: string): void {
+    assertNonNull(this.takeDataChannel);
+    this.takeDataChannel.send(message);
+  }
 
   listenStampMessage(): void {
     assertNonNull(this.stampDataChannel);
     this.stampDataChannel.addEventListener("message", ({ data }) =>
       this.emit("stampMessage", data),
+    );
+  }
+  listenTakeMessage(): void {
+    assertNonNull(this.takeDataChannel);
+    this.takeDataChannel.addEventListener("message", ({ data }) =>
+      this.emit("takeMessage", data),
     );
   }
 }
@@ -151,6 +176,7 @@ type ConnectionControllerEventMap = {
   addConnection: (connection: Connection) => void;
   establishConnection: (connection: Connection) => void;
   stampMessage: (message: string) => void;
+  takeMessage: (message: string) => void;
 };
 export class ConnectionController extends Emitter<ConnectionControllerEventMap> {
   connections: Array<Connection> = [];
@@ -181,6 +207,12 @@ export class ConnectionController extends Emitter<ConnectionControllerEventMap> 
     );
   }
 
+  sendTakeMessage(message: string): void {
+    this.connections.forEach((connection) =>
+      connection.sendTakeMessage(message),
+    );
+  }
+
   addFromId(ids: Array<string>): void {
     const connections = ids.map((id) => this.createConnection(id));
     this.connections.push(...connections);
@@ -203,6 +235,9 @@ export class ConnectionController extends Emitter<ConnectionControllerEventMap> 
     );
     connection.on("stampMessage", (message) => {
       this.emit("stampMessage", message);
+    });
+    connection.on("takeMessage", (message) => {
+      this.emit("takeMessage", message);
     });
     return connection;
   }
