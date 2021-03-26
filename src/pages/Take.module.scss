@@ -1,0 +1,35 @@
+.preview-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .id {
+    position: absolute;
+    top: 0.5rem;
+    background: rgba(31, 31, 31, 0.75);
+    color: white;
+    padding: 0.5rem 1rem 0.5rem 1rem;
+    border-radius: 1rem;
+  }
+
+  .preview {
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .take-button {
+    position: absolute;
+    bottom: 1rem;
+    color: white;
+    background: #fece0a;
+    border: none;
+    border-radius: 100%;
+    width: 6rem;
+    height: 6rem;
+
+    .take-button-icon {
+      width: 50%;
+    }
+  }
+}
