@@ -1,7 +1,5 @@
 import type { FC } from "react";
 import type { BrowserRouterProps } from "react-router-dom";
-import Pic from "../components/Pic";
-import Chromakey from "../components/Chromakey";
 
 import { useEffect, useRef, useState } from "react";
 
@@ -10,17 +8,9 @@ import { assertNonNull } from "../utils/assert";
 import { Connection } from "../lib/webrtc/connection";
 
 const Take: FC<BrowserRouterProps> = () => {
-  const [cameraList, setCameraList] = useState<MediaStream[]>([]);
-
-  const setmyCamera = (MyStream: MediaStream) => {
-    setCameraList([...cameraList, MyStream]);
-  };
-
   return (
     <div>
       <h1>This is Take page.</h1>
-      {/*<Chromakey MediaStream={cameraList} />*/}
-      {/*<Pic MyStream={setmyCamera} />*/}
       <CameraTest />
     </div>
   );
@@ -130,17 +120,4 @@ const CameraTest: FC = () => {
       </div>
     </div>
   );
-};
-
-type VideoProps = {
-  stream: MediaStream;
-};
-const Video: FC<VideoProps> = ({ stream }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    if (videoRef.current === null) return;
-    videoRef.current.srcObject = stream;
-  }, [videoRef]);
-
-  return <video autoPlay muted ref={videoRef} />;
 };

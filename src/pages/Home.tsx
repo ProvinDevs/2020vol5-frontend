@@ -13,6 +13,12 @@ import Input from "../components/common/Input";
 import Modal from "../components/common/Modal";
 import styles from "./Home.module.scss";
 
+declare global {
+  interface HTMLCanvasElement {
+    captureStream(frameRate?: number): MediaStream;
+  }
+}
+
 const Home: FC<BrowserRouterProps> = () => {
   const [isClose, setMenuState] = useState<boolean>(true);
   const [strRoomId, setStrRoomId] = useState("");
