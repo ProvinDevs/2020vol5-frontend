@@ -3,13 +3,15 @@ import type { SignallingStream } from "../grpc";
 import { createContext, useContext, useReducer } from "react";
 import { ConnectionController } from "./connection";
 
-type Store = {
-  myId?: string;
-  mediaStream?: MediaStream;
-  signallingStream?: SignallingStream;
-  connectionController?: ConnectionController;
-};
-type StoreDispatch = ((prev: Store) => Partial<Store>) | Partial<Store>;
+type Store = Partial<{
+  myId: string;
+  roomId: number;
+  mediaStream: MediaStream;
+  signallingStream: SignallingStream;
+  connectionController: ConnectionController;
+  takenPhotoUrl: string;
+}>;
+type StoreDispatch = ((prev: Store) => Store) | Store;
 export type StoreContext = {
   store: Store;
   setStore: Dispatch<StoreDispatch>;

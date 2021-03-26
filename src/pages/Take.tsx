@@ -6,35 +6,18 @@ import { useEffect, useRef, useState } from "react";
 import { useStore } from "../lib/webrtc/store";
 import { assertNonNull } from "../utils/assert";
 import { Connection } from "../lib/webrtc/connection";
+import { useHistory } from "react-router-dom";
 
 const Take: FC<BrowserRouterProps> = () => {
-  return (
-    <div>
-      <h1>This is Take page.</h1>
-      <CameraTest />
-    </div>
-  );
-};
-
-export default Take;
-
-// テスト用
-const CameraTest: FC = () => {
   const {
-    store: { mediaStream, connectionController },
+    store: { mediaStream, connectionController, roomId },
+    setStore,
   } = useStore();
+  const history = useHistory();
 
   const [streams, setStreams] = useState<Array<MediaStream>>([]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const myVideoRef = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    if (myVideoRef.current === null) return;
-    assertNonNull(mediaStream);
-    console.log(mediaStream);
-    myVideoRef.current.srcObject = mediaStream;
-  }, [myVideoRef]);
 
   useEffect(() => {
     if (connectionController === undefined) return;
@@ -83,7 +66,10 @@ const CameraTest: FC = () => {
 
     let requestId: number;
     const animate = () => {
-      ctx.clearRect(0, 0, width, height);
+      ctx.beginPath();
+      ctx.rect(0, 0, width, height);
+      ctx.fillStyle = "white";
+      ctx.fill();
       data.forEach(({ video, tmpCtx }) => {
         tmpCtx.drawImage(video, 0, 0, width, height);
         const imageData = tmpCtx.getImageData(0, 0, width, height);
@@ -109,15 +95,23 @@ const CameraTest: FC = () => {
     };
   }, [mediaStream, streams, canvasRef]);
 
+  const handleClick = () => {
+    const canvas = canvasRef.current;
+    assertNonNull(canvas);
+    canvas.toBlob((blob) => {
+      const imageUrl = URL.createObjectURL(blob);
+      setStore({ takenPhotoUrl: imageUrl });
+      history.push("/edit");
+    });
+  };
+
   return (
     <div>
-      <div>
-        <span>自分の映像</span>
-        <video autoPlay muted ref={myVideoRef} />
-      </div>
-      <div>
-        <canvas ref={canvasRef} />
-      </div>
+      <div>ルームID: {roomId}</div>
+      <canvas ref={canvasRef} />
+      <button onClick={handleClick}>写真を取る</button>
     </div>
   );
 };
+
+export default Take;
