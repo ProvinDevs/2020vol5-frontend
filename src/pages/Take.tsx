@@ -93,6 +93,7 @@ const CameraTest: FC = () => {
 
     let requestId: number;
     const animate = () => {
+      ctx.clearRect(0, 0, width, height);
       data.forEach(({ video, tmpCtx }) => {
         tmpCtx.drawImage(video, 0, 0, width, height);
         const imageData = tmpCtx.getImageData(0, 0, width, height);
@@ -102,14 +103,12 @@ const CameraTest: FC = () => {
           const r = data[pi];
           const g = data[pi + 1];
           const b = data[pi + 2];
-          assertNonNull(r);
-          assertNonNull(g);
-          assertNonNull(b);
-          if (r >= 250 && g >= 250 && b >= 250) {
+          if (r! >= 250 && g! >= 250 && b! >= 250) {
             data[pi + 3] = 0;
           }
         }
-        ctx.putImageData(imageData, 0, 0);
+        tmpCtx.putImageData(imageData, 0, 0);
+        ctx.drawImage(tmpCtx.canvas, 0, 0, width, height);
       });
       requestId = requestAnimationFrame(animate);
     };
