@@ -159,6 +159,7 @@ const Home: FC<BrowserRouterProps> = () => {
           <div>接続に失敗しました。ルームIDを確認してください。</div>
         )}
       </div>
+      <div>Copyright©2021 ProvinDevs</div>
       <div className={styles["license"]}>
         Twemoji is created by Twitter Inc and other contributors and is licensed
         under CC BY 4.0 license. This is can be found at
